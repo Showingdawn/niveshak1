@@ -1,0 +1,482 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-base: #FAFAF7; /* Soft warm-neutral off-white */
+  --bg-surface: #FFFFFF; /* Pure white card surface */
+  --bg-surface-elevated: #FFFFFF;
+  --bg-surface-light: #F4F3EE;
+  --bg-surface-paper: #FAFAF7;
+  --border-color: #E8E6E1; /* Warm divider hairlines */
+  
+  --text-primary: #0A1C30; /* Much darker navy ink for high contrast */
+  --text-secondary: #2C3E52; /* Darker slate secondary text */
+  --text-tertiary: #5E7288; /* Darker tertiary slate for locked/inactive items */
+  
+  --color-red: #C0392B; /* Serious deep red risk warning */
+  --color-amber: #B87A03; /* Accessible amber accent */
+  --color-green: #3D7A5D; /* Deep sage green */
+  --color-gold: #B8860B; /* Deep gold */
+  
+  --grid-color: rgba(15, 44, 76, 0.012);
+  
+  --font-display: 'Inter', sans-serif;
+  --font-body: 'Noto Sans Devanagari', 'Inter', sans-serif;
+}
+
+.dark-theme {
+  --bg-base: #06101E;
+  --bg-surface: #0D1E36;
+  --bg-surface-elevated: #0F233E;
+  --bg-surface-light: #162D4A;
+  --bg-surface-paper: #11253E;
+  --border-color: #273E5F;
+  
+  --text-primary: #FFFFFF;
+  --text-secondary: #8FA0B5;
+  --text-tertiary: #4D648D;
+  
+  --color-red: #D34E36;
+  --color-amber: #D98E04;
+  --color-green: #2E7D63;
+  --color-gold: #D4AF37;
+  
+  --grid-color: rgba(255, 255, 255, 0.015);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-base);
+  /* Adaptive ledger line background grids */
+  background-image: 
+    radial-gradient(circle at center, var(--bg-base) 0%, var(--bg-surface-paper) 100%),
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 100% 100%, 20px 20px, 20px 20px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Accessible focus outline */
+*:focus-visible {
+  outline: 2px solid var(--color-amber) !important;
+  outline-offset: 3px !important;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  width: 100%;
+}
+
+/* Optimized reading view limit */
+.reading-container {
+  max-width: 680px;
+  margin: 0 auto;
+  line-height: 1.7;
+  font-size: 1.05rem;
+  color: var(--text-primary);
+}
+
+/* Monospace Numbers styling */
+.numeric-data {
+  font-family: 'Inter', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* Paper tactile rubber stamps */
+.official-stamp {
+  border: 3px double currentColor;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 8px 16px;
+  display: inline-block;
+  transform: rotate(-2deg);
+  opacity: 0;
+  animation: stampIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  pointer-events: none;
+}
+
+.stamp-red {
+  color: var(--color-red);
+  border-color: var(--color-red);
+  background-color: rgba(192, 57, 43, 0.04);
+}
+
+.stamp-amber {
+  color: var(--color-amber);
+  border-color: var(--color-amber);
+  background-color: rgba(184, 122, 3, 0.04);
+}
+
+.stamp-green {
+  color: var(--color-green);
+  border-color: var(--color-green);
+  background-color: rgba(61, 122, 93, 0.04);
+}
+
+.stamp-gold {
+  color: var(--color-gold);
+  border-color: var(--color-gold);
+  background-color: rgba(184, 134, 11, 0.04);
+}
+
+/* Flat light cards with soft shadows */
+.ledger-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px; /* Smooth rounded corners like Groww */
+  box-shadow: 
+    0 1px 3px rgba(16, 24, 40, 0.04), 
+    0 1px 2px rgba(16, 24, 40, 0.03);
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.ledger-card:hover {
+  box-shadow: 
+    0 4px 12px rgba(16, 24, 40, 0.06), 
+    0 2px 4px rgba(16, 24, 40, 0.04);
+}
+
+/* Elevated classroom details panel */
+.elevated-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 20px rgba(16, 24, 40, 0.05), 
+    0 2px 8px rgba(16, 24, 40, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Inactive cards recede, active ones stand out */
+.pathway-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 24px 20px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  opacity: 1; /* Remove opacity to keep text dark and highly readable */
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.02);
+  outline: none;
+}
+
+.pathway-card:hover {
+  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.05);
+}
+
+.pathway-card.active {
+  background-color: var(--bg-surface);
+  border: 2px solid var(--color-amber);
+  box-shadow: 0 4px 20px rgba(184, 122, 3, 0.08);
+}
+
+.ledger-header {
+  border-bottom: 1px solid var(--border-color);
+  padding: 16px 20px;
+  background-color: rgba(15, 44, 76, 0.005);
+}
+
+.ledger-body {
+  padding: 20px;
+}
+
+/* Dashed separators */
+.ticket-perforated {
+  border-bottom: 2px dashed var(--border-color);
+  margin: 16px 0;
+}
+
+/* List details */
+.ticket-row {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px dotted var(--border-color);
+  padding: 10px 0;
+}
+
+.ticket-label {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+/* Tabular data directory lists */
+.ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.ledger-table th {
+  border-bottom: 2px solid var(--border-color);
+  padding: 12px 16px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+}
+
+.ledger-table td {
+  border-bottom: 1px dotted var(--border-color);
+  padding: 14px 16px;
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+
+.ledger-table tr:hover {
+  background-color: rgba(15, 44, 76, 0.01);
+}
+
+/* Animations */
+@keyframes stampIn {
+  0% {
+    transform: scale(2.2) rotate(-10deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(-2deg);
+    opacity: 1;
+  }
+}
+
+@keyframes scannerSweep {
+  0% {
+    top: 0%;
+    opacity: 0.6;
+  }
+  50% {
+    top: 96%;
+    opacity: 0.6;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.6;
+  }
+}
+
+/* Clean light custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D8D6CE;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Grid system */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* Alerts styled with soft-filled alerts */
+.alert-box {
+  border-left: 4px solid currentColor;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.alert-high {
+  color: var(--color-red);
+  background-color: rgba(192, 57, 43, 0.04);
+  border-color: var(--color-red);
+}
+
+.alert-medium {
+  color: var(--color-amber);
+  background-color: rgba(184, 122, 3, 0.04);
+  border-color: var(--color-amber);
+}
+
+.alert-low {
+  color: var(--color-green);
+  background-color: rgba(61, 122, 93, 0.04);
+  border-color: var(--color-green);
+}
+
+/* Buttons visual lift and hovers */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.15s ease-out;
+  outline: none;
+}
+
+.btn-primary {
+  background-color: var(--color-amber);
+  color: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(184, 122, 3, 0.05);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #A36C02;
+  box-shadow: 0 4px 10px rgba(184, 122, 3, 0.15);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-surface-light);
+  border-color: var(--text-secondary);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Highlights inside user pasted scam cards */
+.highlight-high {
+  background-color: rgba(192, 57, 43, 0.09);
+  border-bottom: 1.5px solid var(--color-red);
+  border-radius: 2px;
+  padding: 1px 3px;
+  color: var(--color-red);
+  font-weight: 600;
+}
+
+.highlight-medium {
+  background-color: rgba(184, 122, 3, 0.09);
+  border-bottom: 1.5px solid var(--color-amber);
+  border-radius: 2px;
+  padding: 1px 3px;
+  color: var(--color-amber);
+  font-weight: 600;
+}
+
+/* Mobile responsive constraints */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 12px;
+  }
+
+  header .container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  nav {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .nav-link {
+    font-size: 0.8rem !important;
+    padding: 6px 8px !important;
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  header button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .btn {
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: 1.25rem !important;
+  }
+
+  h2 {
+    font-size: 1.4rem !important;
+  }
+
+  .official-stamp {
+    font-size: 0.65rem !important;
+    padding: 6px 12px !important;
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Abhyas Practice Trading Simulator Layout */
+.abhyas-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1024px) {
+  .abhyas-layout {
+    grid-template-columns: 1fr !important;
+  }
+}

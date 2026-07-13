@@ -1,0 +1,53 @@
+Created At: 2026-07-13T15:34:42Z
+Completed At: 2026-07-13T15:34:42Z
+File Path: `file:///C:/Users/user/.gemini/antigravity/scratch/niveshak1-main/src/data/lessons.js`
+Total Lines: 744
+Total Bytes: 91135
+Showing lines 700 to 744
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+700:       explanationHi: "स्टॉप लॉस महत्वपूर्ण जोखिम प्रबंधन है। यह आपके खाते को नष्ट करने से पहले आपके नुकसान को कम करके अनुशासन लागू करता है।"
+701:     },
+702:     {
+703:       questionEn: "What is the '1% Rule' in Trading Risk Management?",
+704:       questionHi: "ट्रेडिंग जोखिम प्रबंधन (Risk Management) में '1% का नियम' क्या है?",
+705:       optionsEn: ["You should aim for exactly 1% profit a day", "Never risk losing more than 1% to 2% of your total trading capital on a single trade", "Brokers charge a flat 1% fee on every trade", "You must hold a stock for at least 1 year"],
+706:       optionsHi: ["आपको एक दिन में ठीक 1% लाभ का लक्ष्य रखना चाहिए", "एक ही ट्रेड पर अपनी कुल ट्रेडिंग पूंजी का 1% से 2% से अधिक खोने का जोखिम कभी न लें", "ब्रोकर प्रत्येक ट्रेड पर फ्लैट 1% शुल्क लेते हैं", "आपको कम से कम 1 वर्ष के लिए स्टॉक रखना होगा"],
+707:       answerIndex: 1,
+708:       explanationEn: "By risking only 1%, you can lose 20 trades in a row and still have 80% of your capital left to fight another day.",
+709:       explanationHi: "केवल 1% जोखिम लेकर, आप लगातार 20 ट्रेड हार सकते हैं और फिर भी लड़ने के लिए आपके पास अपनी पूंजी का 80% हिस्सा बचा रहेगा।"
+710:     },
+711:     {
+712:       questionEn: "What psychological trap is known as 'Revenge Trading'?",
+713:       questionHi: "किस मनोवैज्ञानिक जाल को 'रिवेंज ट्रेडिंग' के नाम से जाना जाता है?",
+714:       optionsEn: ["Taking a high-risk bet immediately after a loss to try and win the money back instantly", "Suing the company for poor financial results", "Buying shares of a rival company", "Holding onto a winning stock for a decade"],
+715:       optionsHi: ["नुकसान के तुरंत बाद एक उच्च जोखिम वाला दांव लगाना ताकि पैसे तुरंत वापस जीते जा सकें", "खराब वित्तीय परिणामों के लिए कंपनी पर मुकदमा करना", "किसी प्रतिद्वंद्वी कंपनी के शेयर खरीदना", "एक दशक तक जीतने वाले शेयर को पकड़ कर रखना"],
+716:       answerIndex: 0,
+717:       explanationEn: "Revenge trading is driven by anger and frustration, ignoring strategy, and almost always leads to massive losses.",
+718:       explanationHi: "रिवेंज ट्रेडिंग गुस्से और हताशा से प्रेरित होती है, जो रणनीति को नजरअंदाज करती है।"
+719:     },
+720:     {
+721:       questionEn: "In Options trading, what does buying a 'Call Option (CE)' mean?",
+722:       questionHi: "ऑप्शंस ट्रेडिंग में, 'कॉल ऑप्शन (CE)' खरीदने का क्या मतलब है?",
+723:       optionsEn: ["You are calling customer service", "You are betting that the underlying asset's price will go UP before expiration", "You are betting that the price will crash DOWN", "You are buying a fixed deposit"],
+724:       optionsHi: ["आप ग्राहक सेवा (Customer Service) को कॉल कर रहे हैं", "आप दांव लगा रहे हैं कि समाप्ति से पहले अंतर्निहित संपत्ति की कीमत ऊपर जाएगी", "आप दांव लगा रहे हैं कि कीमत नीचे गिरेगी", "आप एक फिक्स्ड डिपॉजिट खरीद रहे हैं"],
+725:       answerIndex: 1,
+726:       explanationEn: "A Call option gives you the right to buy at a specific price, so it gains value when the market goes up.",
+727:       explanationHi: "एक कॉल विकल्प आपको एक विशिष्ट कीमत पर खरीदने का अधिकार देता है, इसलिए जब बाजार ऊपर जाता है तो इसका मूल्य बढ़ जाता है।"
+728:     }
+729:   ]
+730: };
+731: 
+732: export const glossary = [
+733:   { term: "BSE", defEn: "Bombay Stock Exchange, the oldest exchange in Asia.", defHi: "बॉम्बे स्टॉक एक्सचेंज, एशिया का सबसे पुराना एक्सचेंज।" },
+734:   { term: "NSE", defEn: "National Stock Exchange, the largest exchange in India.", defHi: "नेशनल स्टॉक एक्सचेंज, भारत का सबसे बड़ा एक्सचेंज।" },
+735:   { term: "SEBI", defEn: "Securities and Exchange Board of India, the market regulator.", defHi: "भारतीय प्रतिभूति और विनिमय बोर्ड, बाजार नियामक।" },
+736:   { term: "P/E Ratio", defEn: "Price to Earnings ratio. Used to value a company.", defHi: "मूल्य-आय अनुपात। कंपनी के मूल्यांकन के लिए प्रयुक्त।" },
+737:   { term: "Dividend", defEn: "A portion of corporate profits paid out to stockholders.", defHi: "शेयरधारकों को दिया जाने वाला कॉर्पोरेट मुनाफे का एक हिस्सा।" },
+738:   { term: "Mutual Fund", defEn: "A pool of money from many investors used to buy stocks.", defHi: "शेयर खरीदने के लिए कई निवेशकों से जमा किया गया पैसा।" },
+739:   { term: "SIP", defEn: "Systematic Investment Plan. Investing a fixed amount regularly.", defHi: "सिस्टमैटिक इन्वेस्टमेंट प्लान। नियमित रूप से एक निश्चित राशि का निवेश।" },
+740:   { term: "IPO", defEn: "Initial Public Offering. When a company sells shares to the public for the first time.", defHi: "प्रारंभिक सार्वजनिक पेशकश। जब कोई कंपनी पहली बार जनता को शेयर बेचती है।" },
+741:   { term: "Bull Market", defEn: "A market in which share prices are rising, encouraging buying.", defHi: "एक ऐसा बाजार जिसमें शेयर की कीमतें बढ़ रही हैं, जिससे खरीदारी को प्रोत्साहन मिलता है।" },
+742:   { term: "Bear Market", defEn: "A market in which prices are falling, encouraging selling.", defHi: "एक ऐसा बाजार जिसमें कीमतें गिर रही हैं, जिससे बिकवाली को प्रोत्साहन मिलता है।" }
+743: ];
+744: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

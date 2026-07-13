@@ -1,0 +1,108 @@
+Created At: 2026-07-13T15:34:29Z
+Completed At: 2026-07-13T15:34:29Z
+File Path: `file:///C:/Users/user/.gemini/antigravity/scratch/niveshak1-main/src/data/lessons.js`
+Total Lines: 744
+Total Bytes: 91135
+Showing lines 1 to 100
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: export const tracks = [
+2:   {
+3:     id: "module-1",
+4:     titleEn: "Module 1: Stock Market Basics",
+5:     titleHi: "मॉड्यूल 1: शेयर बाजार के मूल सिद्धांत",
+6:     descriptionEn: "Start your journey here. Understand inflation, how shares work, what an exchange is, and the role of SEBI.",
+7:     descriptionHi: "अपनी यात्रा यहाँ से शुरू करें। मुद्रास्फीति, शेयर, एक्सचेंज और SEBI की भूमिका को समझें।",
+8:     lessons: [
+9:       {
+10:         id: 101,
+11:         titleEn: "Inflation & The Need to Invest",
+12:         titleHi: "मुद्रास्फीति (महंगाई) और निवेश की आवश्यकता",
+13:         narrationEn: "Inflation is the invisible thief that steals the purchasing power of your money over time. If your bank account gives you 3% but inflation is 6%, you are losing money every year. Investing is the only way to beat inflation and grow wealth.",
+14:         narrationHi: "मुद्रास्फीति वह अदृश्य चोर है जो समय के साथ आपके पैसे की क्रय शक्ति को चुरा लेता है। यदि बैंक आपको 3% देता है लेकिन मुद्रास्फीति 6% है, तो आप हर साल पैसा खो रहे हैं।",
+15:         contentEn: [
+16:           "Money loses value over time due to inflation (rising prices of goods).",
+17:           "Keeping cash under the mattress or in low-yield savings accounts guarantees a loss of purchasing power.",
+18:           "Investing in assets like stocks, real estate, or gold helps your money grow faster than inflation.",
+19:           "The 'Rule of 72' shows how fast your money doubles: 72 divided by the interest rate."
+20:         ],
+21:         contentHi: [
+22:           "मुद्रास्फीति (वस्तुओं की बढ़ती कीमतों) के कारण समय के साथ पैसे का मूल्य कम हो जाता है।",
+23:           "नकदी को घर में या कम ब्याज वाले बचत खातों में रखने से क्रय शक्ति का नुकसान निश्चित है।",
+24:           "शेयरों, रियल एस्टेट या सोने जैसी संपत्तियों में निवेश करने से आपका पैसा मुद्रास्फीति से तेज बढ़ता है।",
+25:           "'रूल ऑफ़ 72' दिखाता है कि आपका पैसा कितनी तेजी से दोगुना होता है: 72 को ब्याज दर से विभाजित करें।"
+26:         ],
+27:         videos: [],
+28:         lessonQuiz: { questionEn: 'What is the rule to calculate how fast your money doubles?', questionHi: 'आपका पैसा कितनी तेज़ी से दोगुना होता है, इसकी गणना करने का नियम क्या है?', options: [{en: 'Rule of 50', hi: 'नियम 50'}, {en: 'Rule of 72', hi: 'नियम 72'}, {en: 'Rule of 100', hi: 'नियम 100'}], answerIndex: 1 }
+29:       },
+30:       {
+31:         id: 102,
+32:         titleEn: "What is a Share and a Stock Exchange?",
+33:         titleHi: "शेयर और स्टॉक एक्सचेंज क्या है?",
+34:         narrationEn: "A share is a tiny piece of ownership in a business. When you buy a share of Reliance or Tata, you become a partial owner of that business. The Stock Exchange is simply the digital marketplace where buyers and sellers meet to trade these pieces of ownership.",
+35:         narrationHi: "शेयर किसी व्यवसाय के स्वामित्व का एक छोटा सा हिस्सा है। स्टॉक एक्सचेंज वह डिजिटल बाज़ार है जहाँ खरीदार और विक्रेता इन शेयरों का व्यापार करने के लिए मिलते हैं।",
+36:         contentEn: [
+37:           "A Share (or Equity) represents a fraction of ownership in a company.",
+38:           "Companies issue shares to the public to raise money to expand their business.",
+39:           "In India, the two main exchanges are the National Stock Exchange (NSE) and Bombay Stock Exchange (BSE).",
+40:           "Exchanges ensure fair, transparent, and regulated trading."
+41:         ],
+42:         contentHi: [
+43:           "शेयर किसी कंपनी में स्वामित्व के एक अंश का प्रतिनिधित्व करता है।",
+44:           "कंपनियां अपने व्यवसाय का विस्तार करने के लिए जनता को शेयर जारी कर पैसा जुटाती हैं।",
+45:           "भारत में, दो मुख्य एक्सचेंज नेशनल स्टॉक एक्सचेंज (NSE) और बॉम्बे स्टॉक एक्सचेंज (BSE) हैं।",
+46:           "एक्सचेंज निष्पक्ष, पारदर्शी और विनियमित व्यापार सुनिश्चित करते हैं।"
+47:         ],
+48:         videos: [],
+49:         lessonQuiz: { questionEn: 'What does a share represent?', questionHi: 'शेयर किसका प्रतिनिधित्व करता है?', options: [{en: 'A loan to the company', hi: 'कंपनी को एक ऋण'}, {en: 'A fraction of ownership', hi: 'स्वामित्व का एक अंश'}, {en: 'A guarantee of profit', hi: 'लाभ की गारंटी'}], answerIndex: 1 }
+50:       },
+51:       {
+52:         id: 103,
+53:         titleEn: "Demat Accounts & Brokers",
+54:         titleHi: "डीमैट खाते और ब्रोकर",
+55:         narrationEn: "You cannot buy shares directly from the exchange. You need a broker to execute your trades, and a Demat account to securely store your digital shares. Think of a Demat account like a digital locker for your stock certificates.",
+56:         narrationHi: "आप सीधे एक्सचेंज से शेयर नहीं खरीद सकते। आपको ब्रोकर और डिजिटल शेयरों को सुरक्षित रूप से स्टोर करने के लिए डीमैट खाते की आवश्यकता होती है।",
+57:         contentEn: [
+58:           "Broker: The middleman (like Zerodha or Groww) that connects you to the NSE/BSE.",
+59:           "Demat Account: Dematerialized account where your digital shares are held securely.",
+60:           "Trading Account: The account used to place buy/sell orders.",
+61:           "Always choose SEBI-registered brokers with transparent pricing and low brokerage fees."
+62:         ],
+63:         contentHi: [
+64:           "ब्रोकर: वह बिचौलिया जो आपको NSE/BSE से जोड़ता है।",
+65:           "डीमैट खाता: वह खाता जहां आपके डिजिटल शेयर सुरक्षित रूप से रखे जाते हैं।",
+66:           "ट्रेडिंग खाता: वह खाता जिसका उपयोग खरीद/बिक्री के ऑर्डर देने के लिए किया जाता है।",
+67:           "हमेशा पारदर्शी मूल्य निर्धारण और कम ब्रोकरेज शुल्क वाले SEBI-पंजीकृत ब्रोकर चुनें।"
+68:         ],
+69:         videos: [],
+70:         lessonQuiz: { questionEn: 'Where are your digital shares securely held?', questionHi: 'आपके डिजिटल शेयर सुरक्षित रूप से कहाँ रखे जाते हैं?', options: [{en: 'Savings Account', hi: 'बचत खाता'}, {en: 'Demat Account', hi: 'डीमैट खाता'}, {en: 'Bank Locker', hi: 'बैंक लॉकर'}], answerIndex: 1 }
+71:       },
+72:       {
+73:         id: 104,
+74:         titleEn: "SEBI & Investor Protection",
+75:         titleHi: "SEBI और निवेशक सुरक्षा",
+76:         narrationEn: "SEBI is the police of the Indian stock market. Its job is to protect your money from frauds, scams, and insider trading. Never invest in unregulated schemes or trust 'guaranteed return' tips on WhatsApp or Telegram.",
+77:         narrationHi: "सेबी (SEBI) भारतीय शेयर बाजार की पुलिस है। इसका काम आपके पैसे को धोखाधड़ी से बचाना है। कभी भी व्हाट्सएप या टेलीग्राम पर 'गारंटीड रिटर्न' टिप्स पर भरोसा न करें।",
+78:         contentEn: [
+79:           "SEBI (Securities and Exchange Board of India) regulates the entire securities market.",
+80:           "It forces companies to publish accurate financial results every 3 months.",
+81:           "Beware of 'Pump and Dump' schemes where scammers hype up a penny stock to trap retail investors.",
+82:           "If a broker goes bankrupt, your shares are still safe because they are held centrally by CDSL or NSDL, not the broker."
+83:         ],
+84:         contentHi: [
+85:           "SEBI पूरे प्रतिभूति बाजार को नियंत्रित करता है।",
+86:           "यह कंपनियों को हर 3 महीने में सटीक वित्तीय परिणाम प्रकाशित करने के लिए मजबूर करता है।",
+87:           "'पंप और डंप' योजनाओं से सावधान रहें जहां स्कैमर्स छोटे निवेशकों को फंसाते हैं।",
+88:           "यदि ब्रोकर दिवालिया हो जाता है, तो भी आपके शेयर सुरक्षित रहते हैं क्योंकि वे CDSL या NSDL के पास होते हैं।"
+89:         ],
+90:         videos: [],
+91:         lessonQuiz: { questionEn: 'Which organization regulates the Indian stock market?', questionHi: 'कौन सा संगठन भारतीय शेयर बाजार को नियंत्रित करता है?', options: [{en: 'RBI', hi: 'आरबीआई'}, {en: 'SEBI', hi: 'सेबी'}, {en: 'SBI', hi: 'एसबीआई'}], answerIndex: 1 }
+92:       }
+93:     ]
+94:   },
+95:   {
+96:     id: "module-2",
+97:     titleEn: "Module 2: Fundamental Analysis",
+98:     titleHi: "मॉड्यूल 2: फंडामेंटल एनालिसिस (कंपनी की परख)",
+99:     descriptionEn: "Learn how to read a company's health. Master P/E ratios, Market Cap, Balance Sheets, and how to spot a strong business.",
+100:     descriptionHi: "कंपनी के स्वास्थ्य को पढ़ना सीखें। P/E, मार्केट कैप और बैलेंस शीट को समझें।",
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

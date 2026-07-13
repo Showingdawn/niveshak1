@@ -1,0 +1,145 @@
+export const tracks = [
+  {
+    id: "module-1",
+    titleEn: "Module 1: Stock Market Basics",
+    titleHi: "मॉड्यूल 1: शेयर बाजार के मूल सिद्धांत",
+    descriptionEn: "Start your journey here. Understand inflation, how shares work, what an exchange is, and the role of SEBI.",
+    descriptionHi: "अपनी यात्रा यहाँ से शुरू करें। मुद्रास्फीति, शेयर, एक्सचेंज और SEBI की भूमिका को समझें।",
+    lessons: [
+      {
+        id: 101,
+        titleEn: "Inflation & The Need to Invest",
+        titleHi: "मुद्रास्फीति (महंगाई) और निवेश की आवश्यकता",
+        narrationEn: "Inflation is the invisible thief that steals the purchasing power of your money over time. If your bank account gives you 3% but inflation is 6%, you are losing money every year. Investing is the only way to beat inflation and grow wealth.",
+        narrationHi: "मुद्रास्फीति वह अदृश्य चोर है जो समय के साथ आपके पैसे की क्रय शक्ति को चुरा लेता है। यदि बैंक आपको 3% देता है लेकिन मुद्रास्फीति 6% है, तो आप हर साल पैसा खो रहे हैं।",
+        contentEn: [
+          "Money loses value over time due to inflation (rising prices of goods).",
+          "Keeping cash under the mattress or in low-yield savings accounts guarantees a loss of purchasing power.",
+          "Investing in assets like stocks, real estate, or gold helps your money grow faster than inflation.",
+          "The 'Rule of 72' shows how fast your money doubles: 72 divided by the interest rate."
+        ],
+        contentHi: [
+          "मुद्रास्फीति (वस्तुओं की बढ़ती कीमतों) के कारण समय के साथ पैसे का मूल्य कम हो जाता है।",
+          "नकदी को घर में या कम ब्याज वाले बचत खातों में रखने से क्रय शक्ति का नुकसान निश्चित है।",
+          "शेयरों, रियल एस्टेट या सोने जैसी संपत्तियों में निवेश करने से आपका पैसा मुद्रास्फीति से तेज बढ़ता है।",
+          "'रूल ऑफ़ 72' दिखाता है कि आपका पैसा कितनी तेजी से दोगुना होता है: 72 को ब्याज दर से विभाजित करें।"
+        ],
+        videos: [],
+        lessonQuiz: { questionEn: 'What is the rule to calculate how fast your money doubles?', questionHi: 'आपका पैसा कितनी तेज़ी से दोगुना होता है, इसकी गणना करने का नियम क्या है?', options: [{en: 'Rule of 50', hi: 'नियम 50'}, {en: 'Rule of 72', hi: 'नियम 72'}, {en: 'Rule of 100', hi: 'नियम 100'}], answerIndex: 1 }
+      },
+      {
+        id: 102,
+        titleEn: "What is a Share and a Stock Exchange?",
+        titleHi: "शेयर और स्टॉक एक्सचेंज क्या है?",
+        narrationEn: "A share is a tiny piece of ownership in a business. When you buy a share of Reliance or Tata, you become a partial owner of that business. The Stock Exchange is simply the digital marketplace where buyers and sellers meet to trade these pieces of ownership.",
+        narrationHi: "शेयर किसी व्यवसाय के स्वामित्व का एक छोटा सा हिस्सा है। स्टॉक एक्सचेंज वह डिजिटल बाज़ार है जहाँ खरीदार और विक्रेता इन शेयरों का व्यापार करने के लिए मिलते हैं।",
+        contentEn: [
+          "A Share (or Equity) represents a fraction of ownership in a company.",
+          "Companies issue shares to the public to raise money to expand their business.",
+          "In India, the two main exchanges are the National Stock Exchange (NSE) and Bombay Stock Exchange (BSE).",
+          "Exchanges ensure fair, transparent, and regulated trading."
+        ],
+        contentHi: [
+          "शेयर किसी कंपनी में स्वामित्व के एक अंश का प्रतिनिधित्व करता है।",
+          "कंपनियां अपने व्यवसाय का विस्तार करने के लिए जनता को शेयर जारी कर पैसा जुटाती हैं।",
+          "भारत में, दो मुख्य एक्सचेंज नेशनल स्टॉक एक्सचेंज (NSE) और बॉम्बे स्टॉक एक्सचेंज (BSE) हैं।",
+          "एक्सचेंज निष्पक्ष, पारदर्शी और विनियमित व्यापार सुनिश्चित करते हैं।"
+        ],
+        videos: [],
+        lessonQuiz: { questionEn: 'What does a share represent?', questionHi: 'शेयर किसका प्रतिनिधित्व करता है?', options: [{en: 'A loan to the company', hi: 'कंपनी को एक ऋण'}, {en: 'A fraction of ownership', hi: 'स्वामित्व का एक अंश'}, {en: 'A guarantee of profit', hi: 'लाभ की गारंटी'}], answerIndex: 1 }
+      },
+      {
+        id: 103,
+        titleEn: "Demat Accounts & Brokers",
+        titleHi: "डीमैट खाते और ब्रोकर",
+        narrationEn: "You cannot buy shares directly from the exchange. You need a broker to execute your trades, and a Demat account to securely store your digital shares. Think of a Demat account like a digital locker for your stock certificates.",
+        narrationHi: "आप सीधे एक्सचेंज से शेयर नहीं खरीद सकते। आपको ब्रोकर और डिजिटल शेयरों को सुरक्षित रूप से स्टोर करने के लिए डीमैट खाते की आवश्यकता होती है।",
+        contentEn: [
+          "Broker: The middleman (like Zerodha or Groww) that connects you to the NSE/BSE.",
+          "Demat Account: Dematerialized account where your digital shares are held securely.",
+          "Trading Account: The account used to place buy/sell orders.",
+          "Always choose SEBI-registered brokers with transparent pricing and low brokerage fees."
+        ],
+        contentHi: [
+          "ब्रोकर: वह बिचौलिया जो आपको NSE/BSE से जोड़ता है।",
+          "डीमैट खाता: वह खाता जहां आपके डिजिटल शेयर सुरक्षित रूप से रखे जाते हैं।",
+          "ट्रेडिंग खाता: वह खाता जिसका उपयोग खरीद/बिक्री के ऑर्डर देने के लिए किया जाता है।",
+          "हमेशा पारदर्शी मूल्य निर्धारण और कम ब्रोकरेज शुल्क वाले SEBI-पंजीकृत ब्रोकर चुनें।"
+        ],
+        videos: [],
+        lessonQuiz: { questionEn: 'Where are your digital shares securely held?', questionHi: 'आपके डिजिटल शेयर सुरक्षित रूप से कहाँ रखे जाते हैं?', options: [{en: 'Savings Account', hi: 'बचत खाता'}, {en: 'Demat Account', hi: 'डीमैट खाता'}, {en: 'Bank Locker', hi: 'बैंक लॉकर'}], answerIndex: 1 }
+      },
+      {
+        id: 104,
+        titleEn: "SEBI & Investor Protection",
+        titleHi: "SEBI और निवेशक सुरक्षा",
+        narrationEn: "SEBI is the police of the Indian stock market. Its job is to protect your money from frauds, scams, and insider trading. Never invest in unregulated schemes or trust 'guaranteed return' tips on WhatsApp or Telegram.",
+        narrationHi: "सेबी (SEBI) भारतीय शेयर बाजार की पुलिस है। इसका काम आपके पैसे को धोखाधड़ी से बचाना है। कभी भी व्हाट्सएप या टेलीग्राम पर 'गारंटीड रिटर्न' टिप्स पर भरोसा न करें।",
+        contentEn: [
+          "SEBI (Securities and Exchange Board of India) regulates the entire securities market.",
+          "It forces companies to publish accurate financial results every 3 months.",
+          "Beware of 'Pump and Dump' schemes where scammers hype up a penny stock to trap retail investors.",
+          "If a broker goes bankrupt, your shares are still safe because they are held centrally by CDSL or NSDL, not the broker."
+        ],
+        contentHi: [
+          "SEBI पूरे प्रतिभूति बाजार को नियंत्रित करता है।",
+          "यह कंपनियों को हर 3 महीने में सटीक वित्तीय परिणाम प्रकाशित करने के लिए मजबूर करता है।",
+          "'पंप और डंप' योजनाओं से सावधान रहें जहां स्कैमर्स छोटे निवेशकों को फंसाते हैं।",
+          "यदि ब्रोकर दिवालिया हो जाता है, तो भी आपके शेयर सुरक्षित रहते हैं क्योंकि वे CDSL या NSDL के पास होते हैं।"
+        ],
+        videos: [],
+        lessonQuiz: { questionEn: 'Which organization regulates the Indian stock market?', questionHi: 'कौन सा संगठन भारतीय शेयर बाजार को नियंत्रित करता है?', options: [{en: 'RBI', hi: 'आरबीआई'}, {en: 'SEBI', hi: 'सेबी'}, {en: 'SBI', hi: 'एसबीआई'}], answerIndex: 1 }
+      }
+    ]
+  },
+  {
+    id: "module-2",
+    titleEn: "Module 2: Fundamental Analysis",
+    titleHi: "मॉड्यूल 2: फंडामेंटल एनालिसिस (कंपनी की परख)",
+    descriptionEn: "Learn how to read a company's health. Master P/E ratios, Market Cap, Balance Sheets, and how to spot a strong business.",
+    descriptionHi: "कंपनी के स्वास्थ्य को पढ़ना सीखें। P/E, मार्केट कैप और बैलेंस शीट को समझें।",
+      explanationHi: "स्टॉप लॉस महत्वपूर्ण जोखिम प्रबंधन है। यह आपके खाते को नष्ट करने से पहले आपके नुकसान को कम करके अनुशासन लागू करता है।"
+    },
+    {
+      questionEn: "What is the '1% Rule' in Trading Risk Management?",
+      questionHi: "ट्रेडिंग जोखिम प्रबंधन (Risk Management) में '1% का नियम' क्या है?",
+      optionsEn: ["You should aim for exactly 1% profit a day", "Never risk losing more than 1% to 2% of your total trading capital on a single trade", "Brokers charge a flat 1% fee on every trade", "You must hold a stock for at least 1 year"],
+      optionsHi: ["आपको एक दिन में ठीक 1% लाभ का लक्ष्य रखना चाहिए", "एक ही ट्रेड पर अपनी कुल ट्रेडिंग पूंजी का 1% से 2% से अधिक खोने का जोखिम कभी न लें", "ब्रोकर प्रत्येक ट्रेड पर फ्लैट 1% शुल्क लेते हैं", "आपको कम से कम 1 वर्ष के लिए स्टॉक रखना होगा"],
+      answerIndex: 1,
+      explanationEn: "By risking only 1%, you can lose 20 trades in a row and still have 80% of your capital left to fight another day.",
+      explanationHi: "केवल 1% जोखिम लेकर, आप लगातार 20 ट्रेड हार सकते हैं और फिर भी लड़ने के लिए आपके पास अपनी पूंजी का 80% हिस्सा बचा रहेगा।"
+    },
+    {
+      questionEn: "What psychological trap is known as 'Revenge Trading'?",
+      questionHi: "किस मनोवैज्ञानिक जाल को 'रिवेंज ट्रेडिंग' के नाम से जाना जाता है?",
+      optionsEn: ["Taking a high-risk bet immediately after a loss to try and win the money back instantly", "Suing the company for poor financial results", "Buying shares of a rival company", "Holding onto a winning stock for a decade"],
+      optionsHi: ["नुकसान के तुरंत बाद एक उच्च जोखिम वाला दांव लगाना ताकि पैसे तुरंत वापस जीते जा सकें", "खराब वित्तीय परिणामों के लिए कंपनी पर मुकदमा करना", "किसी प्रतिद्वंद्वी कंपनी के शेयर खरीदना", "एक दशक तक जीतने वाले शेयर को पकड़ कर रखना"],
+      answerIndex: 0,
+      explanationEn: "Revenge trading is driven by anger and frustration, ignoring strategy, and almost always leads to massive losses.",
+      explanationHi: "रिवेंज ट्रेडिंग गुस्से और हताशा से प्रेरित होती है, जो रणनीति को नजरअंदाज करती है।"
+    },
+    {
+      questionEn: "In Options trading, what does buying a 'Call Option (CE)' mean?",
+      questionHi: "ऑप्शंस ट्रेडिंग में, 'कॉल ऑप्शन (CE)' खरीदने का क्या मतलब है?",
+      optionsEn: ["You are calling customer service", "You are betting that the underlying asset's price will go UP before expiration", "You are betting that the price will crash DOWN", "You are buying a fixed deposit"],
+      optionsHi: ["आप ग्राहक सेवा (Customer Service) को कॉल कर रहे हैं", "आप दांव लगा रहे हैं कि समाप्ति से पहले अंतर्निहित संपत्ति की कीमत ऊपर जाएगी", "आप दांव लगा रहे हैं कि कीमत नीचे गिरेगी", "आप एक फिक्स्ड डिपॉजिट खरीद रहे हैं"],
+      answerIndex: 1,
+      explanationEn: "A Call option gives you the right to buy at a specific price, so it gains value when the market goes up.",
+      explanationHi: "एक कॉल विकल्प आपको एक विशिष्ट कीमत पर खरीदने का अधिकार देता है, इसलिए जब बाजार ऊपर जाता है तो इसका मूल्य बढ़ जाता है।"
+    }
+  ]
+};
+
+export const glossary = [
+  { term: "BSE", defEn: "Bombay Stock Exchange, the oldest exchange in Asia.", defHi: "बॉम्बे स्टॉक एक्सचेंज, एशिया का सबसे पुराना एक्सचेंज।" },
+  { term: "NSE", defEn: "National Stock Exchange, the largest exchange in India.", defHi: "नेशनल स्टॉक एक्सचेंज, भारत का सबसे बड़ा एक्सचेंज।" },
+  { term: "SEBI", defEn: "Securities and Exchange Board of India, the market regulator.", defHi: "भारतीय प्रतिभूति और विनिमय बोर्ड, बाजार नियामक।" },
+  { term: "P/E Ratio", defEn: "Price to Earnings ratio. Used to value a company.", defHi: "मूल्य-आय अनुपात। कंपनी के मूल्यांकन के लिए प्रयुक्त।" },
+  { term: "Dividend", defEn: "A portion of corporate profits paid out to stockholders.", defHi: "शेयरधारकों को दिया जाने वाला कॉर्पोरेट मुनाफे का एक हिस्सा।" },
+  { term: "Mutual Fund", defEn: "A pool of money from many investors used to buy stocks.", defHi: "शेयर खरीदने के लिए कई निवेशकों से जमा किया गया पैसा।" },
+  { term: "SIP", defEn: "Systematic Investment Plan. Investing a fixed amount regularly.", defHi: "सिस्टमैटिक इन्वेस्टमेंट प्लान। नियमित रूप से एक निश्चित राशि का निवेश।" },
+  { term: "IPO", defEn: "Initial Public Offering. When a company sells shares to the public for the first time.", defHi: "प्रारंभिक सार्वजनिक पेशकश। जब कोई कंपनी पहली बार जनता को शेयर बेचती है।" },
+  { term: "Bull Market", defEn: "A market in which share prices are rising, encouraging buying.", defHi: "एक ऐसा बाजार जिसमें शेयर की कीमतें बढ़ रही हैं, जिससे खरीदारी को प्रोत्साहन मिलता है।" },
+  { term: "Bear Market", defEn: "A market in which prices are falling, encouraging selling.", defHi: "एक ऐसा बाजार जिसमें कीमतें गिर रही हैं, जिससे बिकवाली को प्रोत्साहन मिलता है।" }
+];
+
