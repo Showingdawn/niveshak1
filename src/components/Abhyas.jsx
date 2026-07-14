@@ -265,6 +265,143 @@ export default function Abhyas({ lang, theme, onNavigateToSeekho }) {
     savePortfolio(fresh);
   };
 
+  // ---- Export Portfolio PDF Report ----
+  const handleExportPDF = async () => {
+    try {
+      const { jsPDF } = await import('jspdf');
+      const doc = new jsPDF();
+      
+      // Theme matching deep dark purple/blue
+      doc.setFillColor(10, 10, 26);
+      doc.rect(0, 0, 210, 297, 'F');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(212, 175, 55); // Gold Accent
+      doc.text('SafalNiveshak — Virtual Stock Portfolio Report', 20, 25);
+      
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, 20, 33);
+      doc.text('VIRTUAL LEDGER REPORT  |  FOR EDUCATIONAL PURPOSES ONLY', 20, 38);
+      
+      doc.setDrawColor(30, 40, 80);
+      doc.line(20, 42, 190, 42);
+
+      // Summary Card Layout
+      doc.setFillColor(20, 30, 60);
+      doc.roundedRect(20, 48, 170, 28, 4, 4, 'F');
+      
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text('AVAILABLE CASH', 25, 55);
+      doc.text('PORTFOLIO BALANCES', 110, 55);
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255);
+      doc.text(`INR ${portfolio.balance.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`, 25, 66);
+      
+      // Calculate total portfolio value
+      const totalInvested = portfolio.holdings.reduce((acc, h) => acc + h.avgBuyPrice * h.quantity, 0);
+      const totalCurrentVal = portfolio.holdings.reduce((acc, h) => {
+        const s = STOCK_CATALOG.find(x => x.ns === h.symbol);
+        return acc + (s?.price || h.avgBuyPrice) * h.quantity;
+      }, 0);
+      const totalWorth = portfolio.balance + totalCurrentVal;
+      
+      doc.text(`INR ${totalWorth.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`, 110, 66);
+      
+      // Holdings Header
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(212, 175, 55);
+      doc.text('Current Holdings / Open Positions:', 20, 90);
+      
+      let y = 98;
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text('SYMBOL', 20, y);
+      doc.text('QUANTITY', 55, y);
+      doc.text('AVG BUY PRICE', 85, y);
+      doc.text('CURRENT PRICE', 120, y);
+      doc.text('TOTAL VALUE', 155, y);
+      
+      doc.setDrawColor(40, 50, 90);
+      doc.line(20, y + 2, 190, y + 2);
+      
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(230, 230, 240);
+      
+      if (portfolio.holdings.length === 0) {
+        doc.text('No active holdings / open positions.', 20, y);
+        y += 8;
+      } else {
+        portfolio.holdings.forEach(h => {
+          const s = STOCK_CATALOG.find(x => x.ns === h.symbol);
+          const currentPrice = s?.price || h.avgBuyPrice;
+          doc.text(h.symbol, 20, y);
+          doc.text(h.quantity.toString(), 55, y);
+          doc.text(`INR ${h.avgBuyPrice.toFixed(2)}`, 85, y);
+          doc.text(`INR ${currentPrice.toFixed(2)}`, 120, y);
+          doc.text(`INR ${(h.quantity * currentPrice).toFixed(2)}`, 155, y);
+          y += 6;
+        });
+      }
+      
+      // Transactions Table
+      y += 12;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(212, 175, 55);
+      doc.text('Recent Transactions History:', 20, y);
+      
+      y += 8;
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text('TYPE', 20, y);
+      doc.text('SYMBOL', 45, y);
+      doc.text('QUANTITY', 70, y);
+      doc.text('EXECUTION PRICE', 95, y);
+      doc.text('TRANS VALUE', 130, y);
+      doc.text('DATE/TIME', 160, y);
+      
+      doc.line(20, y + 2, 190, y + 2);
+      
+      y += 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(230, 230, 240);
+      
+      const recentTx = portfolio.transactions.slice(0, 15); // Export top 15 for visual fit
+      if (recentTx.length === 0) {
+        doc.text('No transactions recorded.', 20, y);
+      } else {
+        recentTx.forEach(t => {
+          if (y > 270) {
+            doc.addPage();
+            doc.setFillColor(10, 10, 26);
+            doc.rect(0, 0, 210, 297, 'F');
+            y = 20;
+          }
+          doc.text(t.type, 20, y);
+          doc.text(t.symbol, 45, y);
+          doc.text(t.quantity.toString(), 70, y);
+          doc.text(`INR ${t.price.toFixed(2)}`, 95, y);
+          doc.text(`INR ${t.total.toFixed(2)}`, 130, y);
+          doc.text(t.ts || new Date().toLocaleDateString('en-IN'), 160, y);
+          y += 6;
+        });
+      }
+      
+      doc.save('SafalNiveshak_Stock_Portfolio_Report.pdf');
+    } catch (err) {
+      console.error(err);
+      alert('Could not export PDF portfolio report.');
+    }
+  };
+
   // ---- Search ----
   const filteredStocks = STOCK_CATALOG.filter(s =>
     s.name.toLowerCase().includes(searchQ.toLowerCase()) ||
@@ -620,7 +757,10 @@ export default function Abhyas({ lang, theme, onNavigateToSeekho }) {
                 </button>
               ))}
               <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px', paddingRight: '12px' }}>
-                <button onClick={handleReset} style={{ background: 'none', border: '1px solid #2a3f5f', borderRadius: '4px', color: '#8FA0B5', padding: '3px 10px', fontSize: '0.72rem', cursor: 'pointer' }}>
+                <button onClick={handleExportPDF} style={{ background: 'linear-gradient(135deg, #7c3aed, #2563eb)', border: 'none', borderRadius: '4px', color: '#fff', padding: '4px 12px', fontSize: '0.72rem', cursor: 'pointer', fontWeight: 'bold' }}>
+                  {getTxt('Export PDF', 'रिपोर्ट डाउनलोड करें')}
+                </button>
+                <button onClick={handleReset} style={{ background: 'none', border: '1px solid #2a3f5f', borderRadius: '4px', color: '#8FA0B5', padding: '4px 10px', fontSize: '0.72rem', cursor: 'pointer' }}>
                   Reset Portfolio
                 </button>
               </div>

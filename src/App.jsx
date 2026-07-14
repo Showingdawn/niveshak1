@@ -8,6 +8,10 @@ import SafalMitraChatbot from './components/SafalMitraChatbot';
 import InteractiveCalculator from './components/InteractiveCalculator';
 import SeekhoRenderer from './components/SeekhoRenderer';
 import OnboardingFlow from './components/OnboardingFlow';
+import DisclaimerBanner from './components/DisclaimerBanner';
+import SplashScreen from './components/SplashScreen';
+import Dashboard from './components/Dashboard';
+import Leaderboard from './components/Leaderboard';
 import { tracks, glossary, trackQuizzes } from './data/lessons';
 import { stockKnowledge } from './data/stockKnowledge';
 import { officialTestTemplates } from './data/scamRules';
@@ -43,6 +47,11 @@ export default function App() {
   const [currentRoute, setCurrentRoute] = useState('home');
   const [lang, setLang] = useState('en');
   const [scamMeterInitialText, setScamMeterInitialText] = useState('');
+
+  // Splash screen: show once per device session
+  const [splashDone, setSplashDone] = useState(() => {
+    return localStorage.getItem('safalniveshak_splash_seen') === 'true';
+  });
 
   // Onboarding: show once per device
   const [onboardingDone, setOnboardingDone] = useState(() => {
@@ -385,8 +394,17 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
-      {!onboardingDone && (
+      {/* Splash Screen — first visit only */}
+      {!splashDone && (
+        <SplashScreen lang={lang} onDone={() => setSplashDone(true)} />
+      )}
+      {/* Onboarding wizard */}
+      {splashDone && !onboardingDone && (
         <OnboardingFlow lang={lang} onComplete={handleOnboardingComplete} />
+      )}
+      {/* Disclaimer sticky banner */}
+      {splashDone && onboardingDone && (
+        <DisclaimerBanner lang={lang} />
       )}
       <Navbar 
         currentRoute={currentRoute} 
@@ -401,188 +419,14 @@ export default function App() {
         
         {/* Route 1: Landing/Home */}
         {currentRoute === 'home' && (
-          <div>
-            {/* Dashboard Welcome Header */}
-            <div style={{ marginBottom: '32px' }}>
-              <h2 style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '6px' }}>
-                {getTxt("Namaste, Investor! 👋", "नमस्ते, निवेशक! 👋")}
-              </h2>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.5' }}>
-                {getTxt(
-                  "Your secure terminal for financial safety, SEBI registry checks, and jargon-free stock market education.",
-                  "वित्तीय सुरक्षा, सेबी सलाहकारों की जांच, और आसान भाषा में शेयर बाजार शिक्षा के लिए आपका सुरक्षित डैशबोर्ड।"
-                )}
-              </p>
-            </div>
-
-            {/* Quick Overview Widgets */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '24px',
-              marginBottom: '32px'
-            }}>
-              
-              {/* Card 1: Classroom Progress */}
-              <div className="ledger-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '220px' }}>
-                <div>
-                  <span className="ticket-label" style={{ color: 'var(--text-tertiary)' }}>{getTxt("ACADEMY STATUS", "अकादमी स्थिति")}</span>
-                  <h3 style={{ fontSize: '1.35rem', marginTop: '10px', marginBottom: '8px', color: 'var(--text-primary)' }}>
-                    📖 {getTxt("Seekho Classroom", "सीखो पाठशाला")}
-                  </h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                    {getTxt(
-                      "Learn stocks, mutual funds, SIP power, and how to spot fraud in 12 structured lessons with bilingual narration.",
-                      "सरल पाठों, अंग्रेजी/हिंदी ऑडियो स्पष्टीकरण और क्विज़ के साथ शेयर बाजार और निवेश की बुनियादी बातें सीखें।"
-                    )}
-                  </p>
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                  <button 
-                    onClick={triggerLessonFastPath}
-                    className="btn btn-primary"
-                    style={{ width: '100%', padding: '10px 16px', fontSize: '0.85rem', backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
-                  >
-                    {getTxt("Start Learning", "पढ़ना शुरू करें")} ➔
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 2: Scam Analyzer Shield */}
-              <div className="ledger-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '220px' }}>
-                <div>
-                  <span className="ticket-label" style={{ color: 'var(--text-tertiary)' }}>{getTxt("PROTECTION ENGINE", "सुरक्षा विश्लेषक")}</span>
-                  <h3 style={{ fontSize: '1.35rem', marginTop: '10px', marginBottom: '8px', color: 'var(--text-primary)' }}>
-                    🛡️ {getTxt("Bachao Scam Shield", "बचाओ स्कैम शील्ड")}
-                  </h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                    {getTxt(
-                      "Scan chat forwards, Telegram investment tips, or pump-and-dump invitations against 15+ fraud red flags.",
-                      "व्हाट्सएप/टेलीग्राम से आए संदिग्ध मुनाफे या वीआईपी स्टॉक टिप्स की जांच करें और जोखिम सूचकांकों का विश्लेषण देखें।"
-                    )}
-                  </p>
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                  <button 
-                    onClick={triggerScamFastPath}
-                    className="btn btn-primary"
-                    style={{ width: '100%', padding: '10px 16px', fontSize: '0.85rem', backgroundColor: 'var(--color-amber)', color: '#FFFFFF' }}
-                  >
-                    {getTxt("Analyze Message", "संदेश की जांच करें")} ➔
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 3: SEBI Lookup Register */}
-              <div className="ledger-card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '220px' }}>
-                <div>
-                  <span className="ticket-label" style={{ color: 'var(--text-tertiary)' }}>{getTxt("REGISTRATION DIRECTORY", "आधिकारिक सत्यापन")}</span>
-                  <h3 style={{ fontSize: '1.35rem', marginTop: '10px', marginBottom: '8px', color: 'var(--text-primary)' }}>
-                    🏛️ {getTxt("SEBI RIA Intermediaries", "सेबी सलाहकार जांच")}
-                  </h3>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-                    {getTxt(
-                      "Cross-verify license credentials instantly against the official registry directory before trusting online tips.",
-                      "ऑनलाइन सलाहकारों की सेबी पंजीकरण संख्या दर्ज करके उनके लाइसेंस और प्रमाणन की आधिकारिक जांच करें।"
-                    )}
-                  </p>
-                </div>
-                <div style={{ marginTop: '20px' }}>
-                  <button 
-                    onClick={() => setCurrentRoute('sebi')}
-                    className="btn btn-secondary"
-                    style={{ width: '100%', padding: '10px 16px', fontSize: '0.85rem', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                  >
-                    {getTxt("Verify License", "पंजीकरण जांचें")} ➔
-                  </button>
-                </div>
-              </div>
-
-            </div>
-
-            {/* SEBI & Community Threat Board */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: '24px',
-              marginBottom: '32px'
-            }}>
-              
-              {/* Left: SEBI Ticker */}
-              <div className="ledger-card" style={{ borderColor: 'var(--border-color)', background: 'var(--bg-surface)' }}>
-                <div className="ledger-header" style={{ borderColor: 'var(--border-color)' }}>
-                  <span className="ticket-label" style={{ color: 'var(--text-secondary)', fontSize: '0.65rem' }}>
-                    {getTxt("OFFICIAL SEBI INVESTOR ALERT REGISTER", "आधिकारिक सेबी निवेशक चेतावनी रजिस्टर")}
-                  </span>
-                </div>
-                <div className="ledger-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {sebiAlerts.map((alert, idx) => (
-                    <div key={idx} style={{ borderBottom: idx < sebiAlerts.length - 1 ? '1px dotted var(--border-color)' : 'none', paddingBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                        <span>{alert.date}</span>
-                        <span style={{ fontWeight: '600' }}>Source: SEBI.gov.in</span>
-                      </div>
-                      <strong style={{ fontSize: '0.9rem', display: 'block', color: 'var(--text-primary)' }}>{getTxt(alert.titleEn, alert.titleHi)}</strong>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: '1.4' }}>{getTxt(alert.descEn, alert.descHi)}</p>
-                      <a href={alert.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', color: 'var(--color-amber)', textDecoration: 'underline', marginTop: '6px', display: 'inline-block' }}>
-                        {getTxt("Read official press release ➔", "आधिकारिक प्रेस विज्ञप्ति पढ़ें ➔")}
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right: Community Alert Tally Feed */}
-              <div className="ledger-card" style={{ borderColor: 'var(--border-color)', background: 'var(--bg-surface)' }}>
-                <div className="ledger-header">
-                  <span className="ticket-label" style={{ fontSize: '0.65rem' }}>
-                    {getTxt("CROWDSOURCED COMMUNITY ALERT TICKER", "कम्युनिटी रिपोर्टेड थ्रेट अलर्ट")}
-                  </span>
-                </div>
-                <div className="ledger-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {reportedScams.slice(0, 3).map((scam, idx) => (
-                    <div key={idx} style={{ borderBottom: idx < 2 ? '1px dotted var(--border-color)' : 'none', paddingBottom: '10px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>
-                        <span style={{ color: 'var(--color-amber)', fontWeight: 'bold' }}>
-                          ⚠️ Reported {scam.reportCount} times
-                        </span>
-                        <span className="numeric-data">{scam.lastReported}</span>
-                      </div>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontStyle: 'italic', wordBreak: 'break-word', lineHeight: '1.4' }}>
-                        "{scam.messageText.substring(0, 100)}{scam.messageText.length > 100 ? '...' : ''}"
-                      </p>
-                      <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '6px' }}>
-                        {scam.patterns && scam.patterns.split(',').map(pat => {
-                          const isHigh = pat.includes('returns') || pat.includes('payment') || pat.includes('dump') || pat.includes('sebi');
-                          return (
-                            <span key={pat} style={{
-                              fontSize: '0.65rem',
-                              backgroundColor: isHigh ? 'rgba(192, 57, 43, 0.06)' : 'rgba(184, 122, 3, 0.06)',
-                              border: '1px solid transparent',
-                              borderRadius: '2px',
-                              padding: '2px 8px',
-                              color: isHigh ? 'var(--color-red)' : 'var(--color-amber)',
-                              textTransform: 'uppercase',
-                              fontWeight: '600'
-                            }}>
-                              {pat.replace('_', ' ')}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center', borderTop: '1px dotted var(--border-color)', paddingTop: '10px' }}>
-                    {getTxt(
-                      "🔒 Anonymity Clear: No personal profiles are logged. Reports increment tallies directly.",
-                      "🔒 डेटा सुरक्षा: कोई व्यक्तिगत जानकारी दर्ज नहीं की जाती। रिपोर्ट से सीधे आंकड़े अपडेट होते हैं।"
-                    )}
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
+          <Dashboard 
+            lang={lang}
+            completedLessons={completedLessons}
+            completedTracks={completedTracks}
+            scanHistory={scanHistory}
+            setCurrentRoute={setCurrentRoute}
+            getTxt={getTxt}
+          />
         )}
 
         {/* Route: Abhyas (Practice Trading Simulator) */}
@@ -612,6 +456,10 @@ export default function App() {
             getTxt={getTxt}
             setCurrentRoute={setCurrentRoute}
             stockKnowledge={stockKnowledge}
+            completedLessons={completedLessons}
+            setCompletedLessons={setCompletedLessons}
+            completedTracks={completedTracks}
+            setCompletedTracks={setCompletedTracks}
           />
         )}
 
@@ -841,7 +689,53 @@ export default function App() {
           <SafalMitraChatbot lang={lang} theme={theme} />
         )}
 
+        {/* Route: Calculator (SIP, Comparison, Inflation, LTCG/STCG Tax) */}
+        {currentRoute === 'hisab' && (() => {
+          const [calcTab, setCalcTab] = React.useState('sip');
+          const calcTabs = [
+            { id: 'sip', label: getTxt('SIP Wealth', 'SIP धन'), icon: '📈' },
+            { id: 'comparison', label: getTxt('FD vs SIP', 'FD vs SIP'), icon: '⚖️' },
+            { id: 'inflation', label: getTxt('Inflation', 'मुद्रास्फीति'), icon: '📉' },
+            { id: 'tax', label: getTxt('Tax (LTCG/STCG)', 'कर (LTCG/STCG)'), icon: '🧾' },
+          ];
+          return (
+            <div>
+              <div style={{ marginBottom: '28px' }}>
+                <h2 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '6px' }}>
+                  🧮 {getTxt('Financial Calculators', 'वित्तीय कैलकुलेटर')}
+                </h2>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                  {getTxt('Plan your investments with precision. All calculations are offline.', 'अपने निवेश की सटीक योजना बनाएं। सभी गणनाएं ऑफलाइन हैं।')}
+                </p>
+              </div>
+              {/* Tab Bar */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                {calcTabs.map(t => (
+                  <button key={t.id} onClick={() => setCalcTab(t.id)} style={{
+                    padding: '8px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                    fontSize: '0.85rem', fontWeight: '600', transition: 'all 0.2s',
+                    background: calcTab === t.id
+                      ? 'linear-gradient(135deg, #7c3aed, #2563eb)'
+                      : 'rgba(255,255,255,0.05)',
+                    color: calcTab === t.id ? '#fff' : 'var(--text-secondary)',
+                    boxShadow: calcTab === t.id ? '0 4px 12px rgba(124,58,237,0.3)' : 'none',
+                  }}>
+                    {t.icon} {t.label}
+                  </button>
+                ))}
+              </div>
+              <InteractiveCalculator type={calcTab} lang={lang} />
+            </div>
+          );
+        })()}
+
+        {/* Route: Local Leaderboard */}
+        {currentRoute === 'leaderboard' && (
+          <Leaderboard lang={lang} />
+        )}
+
         {/* Route 6: About page — full rewrite */}
+
         {currentRoute === 'about' && (
           <div style={{ maxWidth: '820px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* HERO CARD */}

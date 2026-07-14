@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { curriculumMatrix } from '../data/lessons';
+import CertificateGenerator from './CertificateGenerator';
 
 export default function SeekhoRenderer(props) {
   const { lang, getTxt, setCurrentRoute, stockKnowledge } = props;
@@ -20,6 +21,7 @@ export default function SeekhoRenderer(props) {
 
   // Voice narration setting
   const [speechActive, setSpeechActive] = useState(true);
+  const [speakingIndex, setSpeakingIndex] = useState(null);
 
   // Telemetry benchmarks
   const [latencyMs, setLatencyMs] = useState(0.08);
@@ -31,9 +33,13 @@ export default function SeekhoRenderer(props) {
       if (res.ok) {
         const data = await res.json();
         setProgressList(data);
+        localStorage.setItem('safalniveshak_learning_progress', JSON.stringify(data));
+      } else {
+        throw new Error("offline");
       }
     } catch (err) {
-      console.warn("Failed to fetch learning progress ledger.");
+      const data = JSON.parse(localStorage.getItem('safalniveshak_learning_progress') || '[]');
+      setProgressList(data);
     }
   };
 
@@ -49,11 +55,35 @@ export default function SeekhoRenderer(props) {
       const cleanText = text.replace(/[-*#_`|]/g, ' ');
       const utterance = new SpeechSynthesisUtterance(cleanText);
       const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(v => lang === 'hi' ? v.lang.includes('hi') : v.lang.includes('en'));
+      const preferred = voices.find(v => lang === 'hi' ? (v.lang.includes('hi') || v.lang.includes('IN')) : (v.lang.includes('en') || v.lang.includes('US')));
       if (preferred) utterance.voice = preferred;
       utterance.rate = 1.0;
       window.speechSynthesis.speak(utterance);
     } catch (e) {}
+  };
+
+  const handleToggleSpeech = (text, idx) => {
+    if (!('speechSynthesis' in window)) return;
+    if (speakingIndex === idx) {
+      window.speechSynthesis.cancel();
+      setSpeakingIndex(null);
+      return;
+    }
+    try {
+      window.speechSynthesis.cancel();
+      const cleanText = text.replace(/[-*#_`|]/g, ' ');
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(v => lang === 'hi' ? (v.lang.includes('hi') || v.lang.includes('IN')) : (v.lang.includes('en') || v.lang.includes('US')));
+      if (preferred) utterance.voice = preferred;
+      utterance.rate = 1.0;
+      utterance.onend = () => setSpeakingIndex(null);
+      utterance.onerror = () => setSpeakingIndex(null);
+      window.speechSynthesis.speak(utterance);
+      setSpeakingIndex(idx);
+    } catch (e) {
+      setSpeakingIndex(null);
+    }
   };
 
   // Progression checking logic
@@ -78,6 +108,29 @@ export default function SeekhoRenderer(props) {
 
   // Sync completion to backend
   const completeTierState = async (moduleId, tierLevel, score) => {
+    // Write local storage progress first (Offline fallback)
+    const localKey = 'safalniveshak_learning_progress';
+    const currentLocal = JSON.parse(localStorage.getItem(localKey) || '[]');
+    const newEntry = { module_id: moduleId, tier_level: tierLevel, status: "COMPLETED", score };
+    const idx = currentLocal.findIndex(p => p.module_id === moduleId && p.tier_level === tierLevel);
+    if (idx >= 0) {
+      currentLocal[idx] = newEntry;
+    } else {
+      currentLocal.push(newEntry);
+    }
+    localStorage.setItem(localKey, JSON.stringify(currentLocal));
+
+    // Grant XP and lessons complete tracking in parent App state
+    const storedLessons = JSON.parse(localStorage.getItem('safalniveshak_lessons') || '[]');
+    const numId = parseInt(moduleId.replace('module-', ''), 10);
+    if (numId && !storedLessons.includes(numId)) {
+      const updatedLessons = [...storedLessons, numId];
+      localStorage.setItem('safalniveshak_lessons', JSON.stringify(updatedLessons));
+      if (props.setCompletedLessons) {
+        props.setCompletedLessons(updatedLessons);
+      }
+    }
+
     try {
       const res = await fetch("http://localhost:5000/api/learning/complete", {
         method: "POST",
@@ -97,13 +150,12 @@ export default function SeekhoRenderer(props) {
       } else {
         const errorData = await res.json();
         if (errorData.error === 'ILLEGAL_STATE_BYPASS') {
-          // Trigger visually structured caught exceptions alert
           throw new Error(errorData.message);
         }
       }
     } catch (err) {
-      setBypassAlert(err.message);
-      speakText("Warning! Progressive Lock Bypass detected.");
+      // Local fallback handles offline silently
+      await fetchProgress();
     }
   };
 
@@ -239,40 +291,84 @@ export default function SeekhoRenderer(props) {
               </span>
             </div>
             {userStatus === 'COMPLETED' && (
-              <div className="official-stamp stamp-gold" style={{ opacity: 1, animation: 'none', transform: 'rotate(-3deg)', fontSize: '0.75rem' }}>
-                ★ COMPLETED
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                <div className="official-stamp stamp-gold" style={{ opacity: 1, animation: 'none', transform: 'rotate(-3deg)', fontSize: '0.75rem', margin: 0 }}>
+                  ★ COMPLETED
+                </div>
+                <CertificateGenerator
+                  lang={lang}
+                  moduleName={mod.titleEn}
+                  moduleNameHi={mod.titleHi}
+                  xp={activeTier === 'BEGINNER' ? 50 : (activeTier === 'INTERMEDIATE' ? 100 : 150)}
+                  tier={activeTier}
+                  userName={localStorage.getItem('safalniveshak_username') || 'Learner'}
+                />
               </div>
             )}
           </div>
 
           {/* Chapters Study Block */}
           <div style={{ marginBottom: '28px' }}>
-            <h3 style={{ fontSize: '1.1rem', color: '#E8E4DA', marginBottom: '12px' }}>
-              📚 Curricular Study Chapters (Hover to speak narrator guide)
+            <h3 style={{ fontSize: '1.1rem', color: '#E8E4DA', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              📚 {getTxt('Curricular Study Chapters', 'अध्ययन अध्याय')}
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 'normal' }}>
+                {getTxt('(Click 🔊 to play/pause narration)', '(ऑडियो सुनने के लिए 🔊 पर क्लिक करें)')}
+              </span>
             </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {(lang === 'en' ? tierData.chapters : tierData.chaptersHi).map((ch, idx) => (
-                <div
-                  key={idx}
-                  onMouseEnter={() => speakText(ch)}
-                  style={{
-                    backgroundColor: '#070E1A',
-                    border: '1px solid #1a2840',
-                    borderRadius: '6px',
-                    padding: '14px',
-                    fontSize: '0.9rem',
-                    color: '#E8E4DA',
-                    lineHeight: '1.5',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.2s'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-amber)'}
-                  onMouseLeave={(e) => e.currentTarget.style.borderColor = '#1a2840'}
-                >
-                  <strong style={{ color: '#D98E04', marginRight: '6px' }}>Chapter {idx + 1}:</strong>
-                  {ch}
-                </div>
-              ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {(lang === 'en' ? tierData.chapters : tierData.chaptersHi).map((ch, idx) => {
+                const isPlaying = speakingIndex === idx;
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      backgroundColor: isPlaying ? 'rgba(124,58,237,0.06)' : '#070E1A',
+                      border: isPlaying ? '1px solid rgba(124,58,237,0.6)' : '1px solid #1a2840',
+                      boxShadow: isPlaying ? '0 0 16px rgba(124,58,237,0.15)' : 'none',
+                      borderRadius: '8px',
+                      padding: '16px',
+                      fontSize: '0.92rem',
+                      color: '#E8E4DA',
+                      lineHeight: '1.6',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '14px',
+                      transition: 'all 0.25s ease',
+                    }}
+                  >
+                    <button
+                      onClick={() => handleToggleSpeech(ch, idx)}
+                      style={{
+                        background: isPlaying ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '50%',
+                        width: '36px',
+                        height: '36px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        color: isPlaying ? '#a78bfa' : '#8FA0B5',
+                        flexShrink: 0,
+                        transition: 'all 0.2s',
+                        marginTop: '2px'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                      title={isPlaying ? getTxt('Stop Narration', 'आवाज रोकें') : getTxt('Listen to Chapter', 'अध्याय सुनें')}
+                    >
+                      {isPlaying ? '⏸️' : '🔊'}
+                    </button>
+                    <div style={{ flex: 1 }}>
+                      <strong style={{ color: '#D98E04', marginRight: '6px', fontSize: '0.85rem', display: 'block', marginBottom: '2px' }}>
+                        {getTxt(`CHAPTER ${idx + 1}`, `अध्याय ${idx + 1}`)}
+                      </strong>
+                      {ch}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

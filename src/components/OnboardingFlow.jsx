@@ -16,6 +16,7 @@ const GOALS = [
 
 export default function OnboardingFlow({ lang, onComplete }) {
   const [step, setStep] = useState(1);
+  const [name, setName] = useState('');
   const [persona, setPersona] = useState(null);
   const [goal, setGoal] = useState(null);
   const [exiting, setExiting] = useState(false);
@@ -28,6 +29,7 @@ export default function OnboardingFlow({ lang, onComplete }) {
   };
 
   const handleFinish = () => {
+    localStorage.setItem('safalniveshak_username', name.trim() || getTxt('Investor', 'निवेशक'));
     setExiting(true);
     setTimeout(() => {
       onComplete(goal?.route || 'home');
@@ -87,6 +89,34 @@ export default function OnboardingFlow({ lang, onComplete }) {
                 </p>
               </div>
 
+              {/* Name Input Field */}
+              <div style={{ marginBottom: '24px' }}>
+                <label htmlFor="user-name-input" style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '8px', fontWeight: '600' }}>
+                  {getTxt('Enter your Name (Optional):', 'अपना नाम दर्ज करें (वैकल्पिक):')}
+                </label>
+                <input
+                  id="user-name-input"
+                  type="text"
+                  placeholder={getTxt('e.g. Amit Sharma', 'जैसे: अमित शर्मा')}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  style={{
+                    width: '100%',
+                    backgroundColor: 'var(--bg-base)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    color: 'var(--text-primary)',
+                    padding: '10px 14px',
+                    fontSize: '0.95rem',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '10px', fontWeight: '600' }}>
+                {getTxt('Select your profile:', 'अपनी प्रोफ़ाइल चुनें:')}
+              </label>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 {PERSONAS.map(p => (
                   <button

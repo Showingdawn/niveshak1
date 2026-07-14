@@ -422,5 +422,258 @@ export default function InteractiveCalculator({ type, lang }) {
     );
   }
 
+  // RENDER 4: LTCG / STCG Tax Calculator
+  if (type === 'tax') {
+    const [buyPrice, setBuyPrice] = useState(100);
+    const [sellPrice, setSellPrice] = useState(200);
+    const [qty, setQty] = useState(100);
+    const [buyDate, setBuyDate] = useState('2025-01-01');
+    const [sellDate, setSellDate] = useState('2026-07-01');
+
+    // Calculate holding period in months
+    const d1 = new Date(buyDate);
+    const d2 = new Date(sellDate);
+    const diffTime = Math.max(0, d2.getTime() - d1.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const holdingMonths = Math.max(0, Math.floor(diffDays / 30.43)); // Average days in month
+
+    const isLTCG = holdingMonths >= 12;
+    const totalBuy = buyPrice * qty;
+    const totalSell = sellPrice * qty;
+    const gain = totalSell - totalBuy;
+    const isProfit = gain > 0;
+
+    // LTCG: 12.5% on gains above ₹1,25,000 exemption (Budget 2024)
+    // STCG: 20% flat on entire gain (Budget 2024)
+    let taxableGain = 0;
+    let taxAmt = 0;
+    let taxRate = 0;
+
+    if (isProfit) {
+      if (isLTCG) {
+        taxRate = 12.5;
+        taxableGain = Math.max(0, gain - 125000);
+        taxAmt = taxableGain * 0.125;
+      } else {
+        taxRate = 20;
+        taxableGain = gain;
+        taxAmt = gain * 0.20;
+      }
+    }
+
+    const netProfit = isProfit ? gain - taxAmt : gain;
+
+    // Visual chart percentages
+    const exitVal = Math.max(totalBuy, totalSell);
+    const buyPct = Math.round((totalBuy / exitVal) * 100);
+    const taxPct = isProfit ? Math.round((taxAmt / exitVal) * 100) : 0;
+    const profitPct = isProfit ? Math.round((netProfit / exitVal) * 100) : 0;
+
+    return (
+      <div className="ledger-card" style={{ marginTop: '20px', borderStyle: 'solid' }}>
+        <div className="ledger-header" style={{ backgroundColor: 'rgba(255,255,255,0.01)' }}>
+          <span className="ticket-label">{getTxt("LTCG / STCG TAX CALCULATOR", "LTCG / STCG कर कैलकुलेटर")}</span>
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+            {getTxt("As per Union Budget 2024", "केंद्रीय बजट 2024 के अनुसार")}
+          </span>
+        </div>
+        <div className="ledger-body" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+          {/* Input Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '14px' }}>
+            <div>
+              <label htmlFor="tax-buy" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '5px' }}>
+                {getTxt('Buy Price (₹/share)', 'खरीद मूल्य (₹/शेयर)')}
+              </label>
+              <input
+                id="tax-buy"
+                type="number"
+                value={buyPrice}
+                min="1"
+                onChange={e => setBuyPrice(Math.max(1, parseFloat(e.target.value) || 1))}
+                style={{
+                  width: '100%', backgroundColor: 'var(--bg-base)',
+                  border: '1px solid var(--border-color)', borderRadius: '6px',
+                  color: 'var(--text-primary)', padding: '8px 12px', fontSize: '0.9rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="tax-sell" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '5px' }}>
+                {getTxt('Sell Price (₹/share)', 'बिक्री मूल्य (₹/शेयर)')}
+              </label>
+              <input
+                id="tax-sell"
+                type="number"
+                value={sellPrice}
+                min="1"
+                onChange={e => setSellPrice(Math.max(1, parseFloat(e.target.value) || 1))}
+                style={{
+                  width: '100%', backgroundColor: 'var(--bg-base)',
+                  border: '1px solid var(--border-color)', borderRadius: '6px',
+                  color: 'var(--text-primary)', padding: '8px 12px', fontSize: '0.9rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="tax-qty" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '5px' }}>
+                {getTxt('Quantity (shares)', 'मात्रा (शेयर)')}
+              </label>
+              <input
+                id="tax-qty"
+                type="number"
+                value={qty}
+                min="1"
+                onChange={e => setQty(Math.max(1, parseInt(e.target.value) || 1))}
+                style={{
+                  width: '100%', backgroundColor: 'var(--bg-base)',
+                  border: '1px solid var(--border-color)', borderRadius: '6px',
+                  color: 'var(--text-primary)', padding: '8px 12px', fontSize: '0.9rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="tax-buy-date" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '5px' }}>
+                {getTxt('Buy Date', 'खरीद की तारीख')}
+              </label>
+              <input
+                id="tax-buy-date"
+                type="date"
+                value={buyDate}
+                onChange={e => setBuyDate(e.target.value)}
+                style={{
+                  width: '100%', backgroundColor: 'var(--bg-base)',
+                  border: '1px solid var(--border-color)', borderRadius: '6px',
+                  color: 'var(--text-primary)', padding: '7px 12px', fontSize: '0.9rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="tax-sell-date" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '5px' }}>
+                {getTxt('Sell Date', 'बिक्री की तारीख')}
+              </label>
+              <input
+                id="tax-sell-date"
+                type="date"
+                value={sellDate}
+                onChange={e => setSellDate(e.target.value)}
+                style={{
+                  width: '100%', backgroundColor: 'var(--bg-base)',
+                  border: '1px solid var(--border-color)', borderRadius: '6px',
+                  color: 'var(--text-primary)', padding: '7px 12px', fontSize: '0.9rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Tax Type Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <span style={{
+              padding: '5px 14px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: '700',
+              background: isLTCG ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+              border: `1px solid ${isLTCG ? 'rgba(16,185,129,0.4)' : 'rgba(245,158,11,0.4)'}`,
+              color: isLTCG ? '#34d399' : '#fbbf24',
+            }}>
+              {isLTCG
+                ? getTxt('✅ LTCG — Long Term (>12 months)', '✅ LTCG — दीर्घकालिक (>12 महीने)')
+                : getTxt('⚡ STCG — Short Term (<12 months)', '⚡ STCG — अल्पकालिक (<12 महीने)')}
+            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              {getTxt(`Holding period: ${diffDays} days (~${holdingMonths} months)`, `होल्डिंग अवधि: ${diffDays} दिन (~${holdingMonths} महीने)`)}
+            </span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: '600' }}>
+              {getTxt(`Tax Rate: ${taxRate}%`, `कर की दर: ${taxRate}%`)}
+              {isLTCG && ' ' + getTxt('(₹1.25L exempt)', '(₹1.25L छूट)')}
+            </span>
+          </div>
+
+          {/* VISUAL BAR CHART BREAKDOWN */}
+          {isProfit && (
+            <div>
+              <span style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>
+                {getTxt('Visual Breakdown (Exit Value Portfolio Share):', 'विजुअल ब्रेकडाउन (एग्जिट वैल्यू पोर्टफोलियो शेयर):')}
+              </span>
+              <div style={{
+                display: 'flex',
+                height: '24px',
+                width: '100%',
+                borderRadius: '8px',
+                overflow: 'hidden',
+                backgroundColor: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-color)',
+                marginBottom: '10px'
+              }}>
+                <div style={{ width: `${buyPct}%`, backgroundColor: '#3b82f6', transition: 'width 0.3s ease' }} title={`Invested: ${buyPct}%`} />
+                <div style={{ width: `${profitPct}%`, backgroundColor: '#a78bfa', transition: 'width 0.3s ease' }} title={`Net Profit: ${profitPct}%`} />
+                <div style={{ width: `${taxPct}%`, backgroundColor: '#f87171', transition: 'width 0.3s ease' }} title={`Tax: ${taxPct}%`} />
+              </div>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', fontSize: '0.78rem' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                  <span style={{ display: 'inline-block', width: '10px', height: '10px', backgroundColor: '#3b82f6', borderRadius: '2px' }} />
+                  {getTxt(`Invested Capital (${buyPct}%)`, `निवेशित पूंजी (${buyPct}%)`)}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                  <span style={{ display: 'inline-block', width: '10px', height: '10px', backgroundColor: '#a78bfa', borderRadius: '2px' }} />
+                  {getTxt(`Net Profit (${profitPct}%)`, `शुद्ध लाभ (${profitPct}%)`)}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
+                  <span style={{ display: 'inline-block', width: '10px', height: '10px', backgroundColor: '#f87171', borderRadius: '2px' }} />
+                  {getTxt(`Tax Liability (${taxPct}%)`, `कर देयता (${taxPct}%)`)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Results Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px' }}>
+            {[
+              { label: getTxt('Total Invested', 'कुल निवेश'), val: formatCurrency(totalBuy), color: 'var(--text-primary)' },
+              { label: getTxt('Total Sale Value', 'कुल बिक्री मूल्य'), val: formatCurrency(totalSell), color: 'var(--text-primary)' },
+              { label: getTxt('Capital Gain / Loss', 'पूंजीगत लाभ / हानि'), val: formatCurrency(gain), color: isProfit ? '#34d399' : '#f87171' },
+              { label: getTxt('Taxable Gain', 'कर योग्य लाभ'), val: formatCurrency(taxableGain), color: '#fbbf24' },
+              { label: getTxt('Tax Liability', 'कर देयता'), val: formatCurrency(taxAmt), color: '#f87171' },
+              { label: getTxt('Net Profit (after tax)', 'शुद्ध लाभ (कर के बाद)'), val: formatCurrency(netProfit), color: '#a78bfa' },
+            ].map(({ label, val, color }) => (
+              <div key={label} style={{
+                background: 'rgba(255,255,255,0.03)', borderRadius: '8px',
+                border: '1px solid var(--border-color)', padding: '12px',
+              }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>{label}</div>
+                <div style={{ fontSize: '1.05rem', fontWeight: '700', color }}>{val}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Info box */}
+          <div style={{
+            padding: '12px 16px', borderRadius: '8px',
+            background: 'rgba(124,58,237,0.08)', border: '1px solid rgba(124,58,237,0.2)',
+            fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.6',
+          }}>
+            {isLTCG
+              ? getTxt(
+                  '📌 LTCG Rule: Equity gains above ₹1,25,000 per year are taxed at 12.5% (no indexation). Grandfathering applies for shares bought before Jan 31, 2018.',
+                  '📌 LTCG नियम: प्रति वर्ष ₹1,25,000 से अधिक इक्विटी लाभ पर 12.5% कर लगता है (इंडेक्सेशन नहीं)।'
+                )
+              : getTxt(
+                  '📌 STCG Rule: Equity gains held <12 months are taxed flat at 20% regardless of amount (Budget 2024 revised from 15%).',
+                  '📌 STCG नियम: 12 महीने से कम होल्डिंग पर इक्विटी लाभ पर 20% फ्लैट कर (बजट 2024 के अनुसार 15% से बढ़ाकर 20%)।'
+                )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
+

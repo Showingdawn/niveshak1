@@ -713,6 +713,57 @@ export default function AbhyasUltimate({ lang, theme }) {
     fetchPortfolioSummary();
   }, [selectedAsset?.current_price]);
 
+  // ---- Keyboard Shortcuts Hook ----
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      const key = e.key.toLowerCase();
+
+      if (key === 'b') {
+        e.preventDefault();
+        setTradeType('BUY_LONG');
+        showToast('success', getTxt('Shortcuts: Selected BUY direction', 'शॉर्टकट: BUY दिशा चुनी गई'));
+        speakNarrator('Buy order mode selected.');
+      } else if (key === 's') {
+        e.preventDefault();
+        setTradeType('SELL_LONG');
+        showToast('success', getTxt('Shortcuts: Selected SELL direction', 'शॉर्टकट: SELL दिशा चुनी गई'));
+        speakNarrator('Sell order mode selected.');
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        setInputQty('10');
+        setInputAmt('5000');
+        setOrderMode('DELIVERY');
+        showToast('success', getTxt('Shortcuts: Order parameters reset', 'शॉर्टकट: ऑर्डर सेटिंग्स रीसेट'));
+        speakNarrator('Order parameters reset.');
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        if (!assets || assets.length === 0) return;
+        e.preventDefault();
+        
+        const currentIdx = assets.findIndex(a => selectedAsset && a.id === selectedAsset.id);
+        let nextIdx = 0;
+        
+        if (e.key === 'ArrowUp') {
+          nextIdx = currentIdx <= 0 ? assets.length - 1 : currentIdx - 1;
+        } else {
+          nextIdx = currentIdx === -1 || currentIdx === assets.length - 1 ? 0 : currentIdx + 1;
+        }
+        
+        const targetAsset = assets[nextIdx];
+        if (targetAsset) {
+          setSelectedAsset(targetAsset);
+          speakNarrator(targetAsset.symbol);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [assets, selectedAsset]);
+
   // ---- Helper UI functions ----
   const showToast = (type, text) => {
     setToast({ type, text });
@@ -1367,6 +1418,26 @@ export default function AbhyasUltimate({ lang, theme }) {
             })}
           </div>
 
+          {/* Keyboard Shortcuts Hint Panel */}
+          <div style={{
+            backgroundColor: '#070E1A',
+            border: '1px solid #1a2840',
+            borderRadius: '6px',
+            padding: '12px',
+            fontSize: '0.72rem',
+            color: '#8FA0B5'
+          }}>
+            <strong style={{ color: '#D98E04', display: 'block', marginBottom: '8px', textTransform: 'uppercase' }}>
+              ⌨️ {getTxt("Keyboard HUD Shortcuts", "कीबोर्ड शॉर्टकट निर्देश")}
+            </strong>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontFamily: 'monospace' }}>
+              <div><kbd style={{ backgroundColor: '#13233c', padding: '2px 5px', borderRadius: '3px', color: '#fff' }}>B</kbd> : {getTxt("Buy Mode", "बाय मोड")}</div>
+              <div><kbd style={{ backgroundColor: '#13233c', padding: '2px 5px', borderRadius: '3px', color: '#fff' }}>S</kbd> : {getTxt("Sell Mode", "सेल मोड")}</div>
+              <div><kbd style={{ backgroundColor: '#13233c', padding: '2px 5px', borderRadius: '3px', color: '#fff' }}>Esc</kbd> : {getTxt("Reset", "रीसेट")}</div>
+              <div><kbd style={{ backgroundColor: '#13233c', padding: '2px 5px', borderRadius: '3px', color: '#fff' }}>▲/▼</kbd> : {getTxt("Watchlist", "वॉचलिस्ट")}</div>
+            </div>
+          </div>
+
           {/* Cognitive Stability Widget */}
           <div style={{
             backgroundColor: '#070E1A',
@@ -1590,7 +1661,47 @@ export default function AbhyasUltimate({ lang, theme }) {
           
           {selectedAsset && (
             <>
-              <div className="ledger-card" style={{ padding: '20px', backgroundColor: '#0A1628', borderColor: '#1a2840' }}>
+              {/* Backtesting / Live Trading Mode Selector Tabs */}
+              <div style={{ display: 'flex', gap: '6px', borderBottom: '1px solid #1a2840', paddingBottom: '4px', marginBottom: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setBacktestActive(false)}
+                  style={{
+                    backgroundColor: !backtestActive ? '#13233c' : 'transparent',
+                    border: 'none',
+                    borderRadius: '4px 4px 0 0',
+                    color: !backtestActive ? '#D98E04' : '#8FA0B5',
+                    padding: '8px 16px',
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  📈 {getTxt("Live Trading Terminal", "लाइव ट्रेडिंग टर्मिनल")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBacktestActive(true)}
+                  style={{
+                    backgroundColor: backtestActive ? '#13233c' : 'transparent',
+                    border: 'none',
+                    borderRadius: '4px 4px 0 0',
+                    color: backtestActive ? '#D98E04' : '#8FA0B5',
+                    padding: '8px 16px',
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    outline: 'none'
+                  }}
+                >
+                  ⚙️ {getTxt("Strategy Backtester", "रणनीति बैकटेस्टिंग")}
+                </button>
+              </div>
+
+              {!backtestActive ? (
+                <>
+                  <div className="ledger-card" style={{ padding: '20px', backgroundColor: '#0A1628', borderColor: '#1a2840' }}>
               
               {/* Asset title banner */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', borderBottom: '1px solid #1a2840', paddingBottom: '12px', marginBottom: '14px' }}>
@@ -2081,8 +2192,206 @@ export default function AbhyasUltimate({ lang, theme }) {
                 </strong>
                 {getTxt("FVGs represent market inefficiencies where price moves rapidly in one direction due to high institutional buying/selling. The market often returns to fill these gaps later.", 
                          "यह बाजार में आए तीव्र बहाव के कारण छूटा हुआ खाली हिस्सा होता है। भविष्य में मार्केट अक्सर इस खाली हिस्से को भरने वापस आता है।")}
+                </div>
               </div>
-            </div>
+              </>
+            ) : (
+              <div className="ledger-card" style={{ padding: '20px', backgroundColor: '#0A1628', borderColor: '#1a2840' }}>
+                <h3 style={{ fontSize: '1.15rem', color: '#D98E04', fontWeight: '800', marginBottom: '8px' }}>
+                  ⚙️ {getTxt("Strategy Backtesting Sandbox", "रणनीति बैकटेस्टिंग सैंडबॉक्स")}
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: '#8FA0B5', marginBottom: '20px' }}>
+                  {getTxt(
+                    `Simulate a trading strategy against historical price candles of ${selectedAsset.name}.`,
+                    `${selectedAsset.name} के ऐतिहासिक कैंडल डेटा पर रणनीति का बैकटेस्ट सिमुलेशन चलाएं।`
+                  )}
+                </p>
+                
+                {/* Inputs */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.78rem', color: '#8FA0B5', marginBottom: '6px', fontWeight: 'bold' }}>
+                      {getTxt("Select Strategy", "रणनीति चुनें")}
+                    </label>
+                    <select
+                      value={backtestStrategy}
+                      onChange={(e) => {
+                        setBacktestStrategy(e.target.value);
+                        setBacktestResults(null);
+                      }}
+                      style={{
+                        width: '100%',
+                        backgroundColor: '#070E1A',
+                        border: '1px solid #1a2840',
+                        borderRadius: '6px',
+                        color: '#E8E4DA',
+                        padding: '10px',
+                        fontSize: '0.85rem',
+                        outline: 'none'
+                      }}
+                    >
+                      <option value="BUY_HOLD">{getTxt("Buy & Hold (लॉन्ग-टर्म होल्ड)", "Buy & Hold (लॉन्ग-टर्म होल्ड)")}</option>
+                      <option value="SMA_CROSSOVER">{getTxt("5/15 SMA Crossover (मूविंग एवरेज क्रॉस)", "5/15 SMA Crossover (मूविंग एवरेज क्रॉस)")}</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                    <button
+                      type="button"
+                      onClick={handleRunBacktest}
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        padding: '10px 18px',
+                        fontSize: '0.88rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🚀 {getTxt("Run Simulation", "सिमुलेशन चलाएं")}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Results Display */}
+                {backtestResults ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {/* Metrics cards */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+                      <div style={{ backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '6px', padding: '12px' }}>
+                        <span style={{ fontSize: '0.65rem', color: '#8FA0B5', textTransform: 'uppercase' }}>{getTxt("Initial Capital", "प्रारंभिक पूंजी")}</span>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#fff', marginTop: '4px', fontFamily: 'monospace' }}>
+                          ₹{backtestResults.initialVal.toLocaleString('en-IN')}
+                        </div>
+                      </div>
+
+                      <div style={{ backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '6px', padding: '12px' }}>
+                        <span style={{ fontSize: '0.65rem', color: '#8FA0B5', textTransform: 'uppercase' }}>{getTxt("Final Worth", "अंतिम पूंजी")}</span>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#fff', marginTop: '4px', fontFamily: 'monospace' }}>
+                          ₹{backtestResults.finalVal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                        </div>
+                      </div>
+
+                      <div style={{ backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '6px', padding: '12px' }}>
+                        <span style={{ fontSize: '0.65rem', color: '#8FA0B5', textTransform: 'uppercase' }}>{getTxt("Total Returns", "कुल रिटर्न")}</span>
+                        <div style={{ 
+                          fontSize: '1.1rem', 
+                          fontWeight: 'bold', 
+                          color: backtestResults.returnPct >= 0 ? '#22c55e' : '#ef4444', 
+                          marginTop: '4px', 
+                          fontFamily: 'monospace' 
+                        }}>
+                          {backtestResults.returnPct >= 0 ? '+' : ''}{backtestResults.returnPct.toFixed(2)}%
+                        </div>
+                      </div>
+
+                      <div style={{ backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '6px', padding: '12px' }}>
+                        <span style={{ fontSize: '0.65rem', color: '#8FA0B5', textTransform: 'uppercase' }}>{getTxt("Total Trades", "कुल ट्रेड")}</span>
+                        <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#fb923c', marginTop: '4px', fontFamily: 'monospace' }}>
+                          {backtestResults.trades.length}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Visual Equity Curve Chart */}
+                    <div style={{ backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '8px', padding: '16px' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#8FA0B5', display: 'block', marginBottom: '12px', fontWeight: 'bold' }}>
+                        📊 {getTxt("Equity Curve Over Time", "समय के साथ पूंजी वृद्धि वक्र")}
+                      </span>
+                      
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'flex-end',
+                        justifyContent: 'space-between',
+                        height: '120px',
+                        borderLeft: '1px solid #2a3f5f',
+                        borderBottom: '1px solid #2a3f5f',
+                        paddingLeft: '6px',
+                        paddingBottom: '4px',
+                        position: 'relative'
+                      }}>
+                        {(() => {
+                          const minVal = Math.min(...backtestResults.equityCurve);
+                          const maxVal = Math.max(...backtestResults.equityCurve);
+                          const rangeVal = maxVal - minVal || 1;
+                          
+                          const stepSize = Math.max(1, Math.floor(backtestResults.equityCurve.length / 15));
+                          const points = [];
+                          for (let i = 0; i < backtestResults.equityCurve.length; i += stepSize) {
+                            points.push(backtestResults.equityCurve[i]);
+                          }
+                          if (points[points.length - 1] !== backtestResults.equityCurve[backtestResults.equityCurve.length - 1]) {
+                            points.push(backtestResults.equityCurve[backtestResults.equityCurve.length - 1]);
+                          }
+
+                          return points.map((val, idx) => {
+                            const hPct = Math.max(10, Math.min(100, Math.round(((val - minVal) / rangeVal) * 100)));
+                            return (
+                              <div key={idx} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', justifyContent: 'flex-end' }}>
+                                <div 
+                                  style={{
+                                    width: '70%', 
+                                    height: `${hPct}%`, 
+                                    background: val >= 100000 
+                                      ? 'linear-gradient(to top, rgba(34,197,94,0.1), #22c55e)' 
+                                      : 'linear-gradient(to top, rgba(239,68,68,0.1), #ef4444)',
+                                    borderRadius: '2px 2px 0 0',
+                                    transition: 'all 0.3s ease'
+                                  }}
+                                  title={`Value: ₹${val.toFixed(0)}`}
+                                />
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Transaction Logs Table */}
+                    <div style={{ backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '8px', padding: '16px', maxHeight: '160px', overflowY: 'auto' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#8FA0B5', display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
+                        📜 {getTxt("Simulation Trade Ledger", "सिमुलेशन ट्रेड लेजर प्रविष्टियां")}
+                      </span>
+                      <table style={{ width: '100%', fontSize: '0.75rem', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ color: '#8FA0B5', borderBottom: '1px solid #1a2840' }}>
+                            <th style={{ textAlign: 'left', padding: '6px' }}>{getTxt("Type", "प्रकार")}</th>
+                            <th style={{ textAlign: 'right', padding: '6px' }}>{getTxt("Price", "मूल्य")}</th>
+                            <th style={{ textAlign: 'right', padding: '6px' }}>{getTxt("Time", "समय")}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {backtestResults.trades.map((t, idx) => (
+                            <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)' }}>
+                              <td style={{ 
+                                padding: '6px', 
+                                fontWeight: 'bold',
+                                color: t.type.includes('BUY') ? '#22c55e' : '#ef4444' 
+                              }}>
+                                {t.type}
+                              </td>
+                              <td style={{ textAlign: 'right', padding: '6px', fontFamily: 'monospace' }}>
+                                ₹{t.price.toFixed(2)}
+                              </td>
+                              <td style={{ textAlign: 'right', padding: '6px', color: '#8FA0B5' }}>
+                                {t.date}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '40px', border: '1.5px dashed #1a2840', borderRadius: '8px', color: '#8FA0B5' }}>
+                    ⚡ {getTxt("Click 'Run Simulation' to execute backtesting.", "बैकटेस्ट चलाने के लिए 'सिमुलेशन चलाएं' पर क्लिक करें।")}
+                  </div>
+                )}
+              </div>
+            )}
             </>
           )}
 

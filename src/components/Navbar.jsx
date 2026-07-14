@@ -5,6 +5,19 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
     setLang(lang === 'en' ? 'hi' : 'en');
   };
 
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const navItems = [
     { id: 'home', labelEn: 'Home', labelHi: 'मुख्य पृष्ठ' },
     { id: 'seekho', labelEn: 'Seekho (Learn)', labelHi: 'सीखो (पाठशाला)' },
@@ -13,6 +26,7 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
     { id: 'sebi', labelEn: 'SEBI RIA Verifier', labelHi: 'सलाहकार जांच' },
     { id: 'passbook', labelEn: 'Passbook', labelHi: 'पासबुक' },
     { id: 'safalmitra', labelEn: 'SafalMitra AI', labelHi: 'सफलमित्र AI' },
+    { id: 'leaderboard', labelEn: 'Leaderboard 🏆', labelHi: 'लीडरबोर्ड 🏆' },
     { id: 'about', labelEn: 'About', labelHi: 'विवरण' },
   ];
 
@@ -106,6 +120,30 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
         {/* Control Box: Lang Toggle & persistent Demo switch */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           
+          {/* Online/Offline Status Indicator */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '16px',
+            padding: '4px 10px',
+            fontSize: '0.72rem',
+            fontWeight: '600'
+          }}>
+            <span style={{
+              display: 'inline-block',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: isOnline ? '#22c55e' : '#f97316',
+              boxShadow: isOnline ? '0 0 8px #22c55e' : '0 0 8px #f97316'
+            }} />
+            <span style={{ color: isOnline ? '#22c55e' : '#f97316' }}>
+              {isOnline ? getTxt("Online", "ऑनलाइन") : getTxt("Offline Mode", "ऑफलाइन मोड")}
+            </span>
+          </div>
 
 
           {/* Bilingual Toggle stamp */}
