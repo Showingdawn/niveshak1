@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { App as CapApp } from '@capacitor/app';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import Navbar from './components/Navbar';
 import Abhyas from './components/Abhyas';
 import ScamMeter from './components/ScamMeter';
@@ -69,11 +71,52 @@ export default function App() {
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark-theme');
+      try {
+        StatusBar.setStyle({ style: Style.Dark });
+        StatusBar.setBackgroundColor({ color: '#06101E' });
+      } catch (e) {
+        console.log("Capacitor StatusBar active only on native mobile wrappers.");
+      }
     } else {
       document.documentElement.classList.remove('dark-theme');
+      try {
+        StatusBar.setStyle({ style: Style.Light });
+        StatusBar.setBackgroundColor({ color: '#FAFAF7' });
+      } catch (e) {
+        console.log("Capacitor StatusBar active only on native mobile wrappers.");
+      }
     }
     localStorage.setItem('safalniveshak_theme', theme);
   }, [theme]);
+
+  // Android hardware back button handler (Part B safe exit/navigation)
+  useEffect(() => {
+    let backButtonListener;
+    const registerBackButton = async () => {
+      try {
+        backButtonListener = await CapApp.addListener('backButton', () => {
+          if (currentRoute !== 'home') {
+            setCurrentRoute('home');
+          } else {
+            const confirmExit = window.confirm(lang === 'en' ? "Exit SafalNiveshak?" : "सफल निवेशक ऐप बंद करें?");
+            if (confirmExit) {
+              CapApp.exitApp();
+            }
+          }
+        });
+      } catch (e) {
+        console.log("Capacitor backButton listener active only in native APK environments.");
+      }
+    };
+    
+    registerBackButton();
+    
+    return () => {
+      if (backButtonListener && typeof backButtonListener.remove === 'function') {
+        backButtonListener.remove();
+      }
+    };
+  }, [currentRoute, lang]);
   
   // Active Track selection
   const [activeTrackId, setActiveTrackId] = useState('beginner'); // 'beginner', 'intermediate', 'safety'
@@ -876,8 +919,9 @@ export default function App() {
 
       <footer style={{
         backgroundColor: '#040B15',
-        borderTop: '2px solid var(--border-color)',
-        padding: '30px 0',
+        borderTop: '1px solid var(--border-glass)',
+        paddingTop: '30px',
+        paddingBottom: 'calc(30px + env(safe-area-inset-bottom, 0px))',
         marginTop: '60px',
         color: 'var(--text-secondary)',
         fontSize: '0.85rem'

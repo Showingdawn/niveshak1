@@ -34,18 +34,20 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
 
   return (
     <header style={{
-      borderBottom: '1px solid var(--border-color)',
-      backgroundColor: 'var(--bg-surface)',
+      borderBottom: '1px solid var(--border-glass)',
+      backgroundColor: 'var(--bg-glass)',
+      backdropFilter: 'blur(18px)',
+      WebkitBackdropFilter: 'blur(18px)',
       position: 'sticky',
       top: 0,
       zIndex: 100,
-      boxShadow: '0 1px 3px rgba(16,24,40,0.05)'
+      boxShadow: 'inset 0 1px 0 0 var(--highlight-glass), 0 4px 12px rgba(0,0,0,0.1)'
     }}>
       <div className="container" style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingTop: '14px',
+        paddingTop: 'calc(14px + env(safe-area-inset-top, 0px))',
         paddingBottom: '14px',
         flexWrap: 'wrap',
         gap: '16px'
@@ -53,13 +55,16 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
         {/* Logo Brand */}
         <button 
           onClick={() => setCurrentRoute('home')}
+          className="btn-3d"
           style={{
             background: 'none',
             border: 'none',
             color: 'var(--text-primary)',
             cursor: 'pointer',
             textAlign: 'left',
-            padding: 0
+            padding: '4px 10px',
+            boxShadow: 'none',
+            transform: 'none'
           }}
           aria-label="SafalNiveshak Home"
         >
@@ -71,14 +76,14 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
               borderRadius: '2px'
             }}></div>
             <div>
-              <h1 style={{ fontSize: '1.25rem', margin: 0, lineHeight: 1.1, color: 'var(--text-primary)', fontWeight: '800' }}>
+              <h1 style={{ fontSize: '1.15rem', margin: 0, lineHeight: 1.1, color: 'var(--text-primary)', fontWeight: '800' }}>
                 SafalNiveshak
               </h1>
               <span style={{ 
                 fontFamily: 'var(--font-body)', 
-                fontSize: '0.68rem', 
+                fontSize: '0.65rem', 
                 color: 'var(--text-secondary)',
-                letterSpacing: '0.05em',
+                letterSpacing: '0.03em',
                 fontWeight: '600'
               }}>
                 सफल निवेशक • Financial Safety & Literacy
@@ -95,20 +100,13 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
               <button
                 key={item.id}
                 onClick={() => setCurrentRoute(item.id)}
-                className="nav-link"
+                className={`btn-3d ${isActive ? 'btn-3d-primary' : ''}`}
                 aria-current={isActive ? 'page' : undefined}
                 style={{
-                  background: isActive ? 'rgba(184, 122, 3, 0.05)' : 'transparent',
-                  color: isActive ? 'var(--color-amber)' : 'var(--text-primary)',
-                  border: '1px solid',
-                  borderColor: isActive ? 'var(--color-amber)' : 'transparent',
-                  borderRadius: '4px',
                   padding: '6px 12px',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: isActive ? '700' : '500',
-                  fontSize: '0.85rem',
-                  transition: 'all 0.15s ease'
+                  fontSize: '0.78rem',
+                  fontWeight: isActive ? '800' : '600',
+                  margin: '2px'
                 }}
               >
                 {lang === 'en' ? item.labelEn : item.labelHi}
@@ -126,7 +124,7 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
             alignItems: 'center',
             gap: '6px',
             backgroundColor: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid var(--border-color)',
+            border: '1px solid var(--border-glass)',
             borderRadius: '16px',
             padding: '4px 10px',
             fontSize: '0.72rem',
@@ -145,59 +143,34 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
             </span>
           </div>
 
-
           {/* Bilingual Toggle stamp */}
           <button
             onClick={toggleLang}
+            className="btn-3d"
             style={{
-              backgroundColor: 'transparent',
-              border: '1.5px solid var(--color-amber)',
-              borderRadius: '4px',
+              borderColor: 'var(--color-amber)',
               color: 'var(--color-amber)',
-              padding: '4px 10px',
-              fontSize: '0.8rem',
-              fontWeight: '800',
-              fontFamily: 'var(--font-display)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.15s ease',
-              textTransform: 'uppercase'
+              padding: '5px 12px',
+              fontSize: '0.78rem',
+              fontWeight: '800'
             }}
             aria-label={lang === 'en' ? 'Switch language to Hindi' : 'Switch language to English'}
           >
-            <span style={{
-              display: 'inline-block',
-              width: '5px',
-              height: '5px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--color-amber)'
-            }}></span>
             {lang === 'en' ? 'EN ➔ हि' : 'हि ➔ EN'}
           </button>
 
           {/* Theme Toggle Switch */}
           <button
             onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            className="btn-3d"
             style={{
-              backgroundColor: 'transparent',
-              border: '1.5px solid var(--border-color)',
-              borderRadius: '4px',
-              color: 'var(--text-primary)',
-              padding: '4px 10px',
-              fontSize: '0.8rem',
-              fontWeight: '700',
-              fontFamily: 'var(--font-display)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'all 0.15s ease'
+              padding: '5px 12px',
+              fontSize: '0.78rem',
+              fontWeight: '700'
             }}
             aria-label={theme === 'light' ? 'Switch to Dark Theme' : 'Switch to Light Theme'}
           >
-            <span>{theme === 'light' ? '🌙' : '☀️'}</span>
+            <span style={{ marginRight: '4px' }}>{theme === 'light' ? '🌙' : '☀️'}</span>
             {theme === 'light' ? getTxt("Dark", "डार्क") : getTxt("Light", "लाइट")}
           </button>
 

@@ -162,58 +162,77 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Flat light cards with soft shadows */
 .ledger-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: 12px; /* Smooth rounded corners like Groww */
+  background: var(--bg-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
   box-shadow: 
-    0 1px 3px rgba(16, 24, 40, 0.04), 
-    0 1px 2px rgba(16, 24, 40, 0.03);
+    inset 0 1px 0 0 var(--highlight-glass),
+    var(--shadow-ambient),
+    var(--shadow-contact);
   position: relative;
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  will-change: transform, box-shadow;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ledger-card:hover {
+  transform: translateY(-2px);
   box-shadow: 
-    0 4px 12px rgba(16, 24, 40, 0.06), 
-    0 2px 4px rgba(16, 24, 40, 0.04);
+    inset 0 1px 0 0 var(--highlight-glass),
+    0 8px 24px rgba(124, 58, 237, 0.06),
+    var(--shadow-ambient),
+    var(--shadow-contact);
 }
 
 /* Elevated classroom details panel */
 .elevated-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
   box-shadow: 
-    0 4px 20px rgba(16, 24, 40, 0.05), 
-    0 2px 8px rgba(16, 24, 40, 0.03);
+    inset 0 1px 0 0 var(--highlight-glass),
+    var(--shadow-ambient),
+    var(--shadow-contact);
   position: relative;
   overflow: hidden;
 }
 
 /* Inactive cards recede, active ones stand out */
 .pathway-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
   padding: 24px 20px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   width: 100%;
-  opacity: 1; /* Remove opacity to keep text dark and highly readable */
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.02);
+  box-shadow: 
+    inset 0 1px 0 0 var(--highlight-glass),
+    var(--shadow-contact);
   outline: none;
 }
 
 .pathway-card:hover {
-  box-shadow: 0 4px 12px rgba(16, 24, 40, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 
+    inset 0 1px 0 0 var(--highlight-glass),
+    0 8px 20px rgba(124, 58, 237, 0.08),
+    var(--shadow-contact);
 }
 
 .pathway-card.active {
-  background-color: var(--bg-surface);
   border: 2px solid var(--color-amber);
-  box-shadow: 0 4px 20px rgba(184, 122, 3, 0.08);
+  box-shadow: 
+    inset 0 1px 0 0 var(--highlight-glass),
+    0 0 16px rgba(217, 142, 4, 0.2),
+    var(--shadow-contact);
 }
 
 .ledger-header {
@@ -362,44 +381,75 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--color-green);
 }
 
-/* Buttons visual lift and hovers */
 .btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
   font-weight: 700;
-  border-radius: 4px;
+  border-radius: 12px;
   padding: 10px 20px;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--text-primary);
+  box-shadow: 
+    inset 0 1.5px 0 0 var(--btn-highlight),
+    0 4px 6px rgba(0, 0, 0, 0.15);
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
   text-decoration: none;
   font-size: 0.9rem;
-  transition: all 0.15s ease-out;
-  outline: none;
 }
 
 .btn-primary {
-  background-color: var(--color-amber);
-  color: #FFFFFF;
-  box-shadow: 0 1px 2px rgba(184, 122, 3, 0.05);
+  background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%) !important;
+  border: 1px solid #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.25),
+    0 4px 6px rgba(124, 58, 237, 0.25),
+    0 4px 6px rgba(0, 0, 0, 0.15) !important;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #A36C02;
-  box-shadow: 0 4px 10px rgba(184, 122, 3, 0.15);
-  transform: translateY(-1px);
+  background: linear-gradient(180deg, #9065f7 0%, #7635de 100%) !important;
+  box-shadow: 
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35),
+    0 8px 16px rgba(124, 58, 237, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(-2px);
+}
+
+.btn-primary:active:not(:disabled) {
+  background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%) !important;
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    0 2px 4px rgba(124, 58, 237, 0.2) !important;
 }
 
 .btn-secondary {
-  background-color: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-glass);
+  background: var(--btn-bg);
+  color: var(--text-secondary);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: var(--bg-surface-light);
-  border-color: var(--text-secondary);
+  transform: translateY(-2px);
+  box-shadow: 
+    inset 0 1.5px 0 0 var(--btn-highlight),
+    0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 
+    inset 0 1px 0 0 var(--btn-highlight),
+    0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn:disabled {
@@ -621,4 +671,10 @@ h1, h2, h3, h4, h5, h6 {
   pointer-events: none;
   z-index: 0;
   will-change: transform, opacity;
+}
+
+@media (max-width: 768px) {
+  .ambient-orb {
+    display: none !important;
+  }
 }
