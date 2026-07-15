@@ -1,0 +1,105 @@
+/* ===== 3D GLASS CARD SYSTEM ===== */
+.glass-card {
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 20px !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 40px rgba(124, 58, 237, 0.06) !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform: translateZ(0) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.glass-card::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important; left: 0 !important; right: 0 !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent) !important;
+}
+
+.glass-card:hover {
+  transform: translateY(-6px) translateZ(0) !important;
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.5),
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 60px rgba(124, 58, 237, 0.25),
+    0 0 20px rgba(56, 189, 248, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ===== 3D BUTTON SYSTEM ===== */
+.btn-3d {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
+  border: none !important;
+  border-radius: 14px !important;
+  padding: 14px 28px !important;
+  color: white !important;
+  font-weight: 600 !important;
+  box-shadow: 
+    0 4px 12px rgba(124, 58, 237, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  cursor: pointer !important;
+  transform: translateY(0) scale(1) !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.btn-3d:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 
+    0 8px 24px rgba(124, 58, 237, 0.55),
+    0 4px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  filter: brightness(1.1) !important;
+}
+
+.btn-3d:active {
+  transform: translateY(1px) scale(0.97) !important;
+  box-shadow: 
+    0 2px 6px rgba(124, 58, 237, 0.4),
+    inset 0 1px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ===== ICON TILE 3D (Interactive Hub) ===== */
+.icon-tile {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 16px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transform-style: preserve-3d !important;
+  perspective: 800px !important;
+}
+
+.icon-tile:hover {
+  transform: translateY(-4px) scale(1.03) !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(124, 58, 237, 0.2) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.icon-tile:active {
+  transform: translateY(-1px) scale(0.98) !important;
+}
+
+/* ===== NAV TAB DEPTH ===== */
+.nav-tab-active {
+  background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(79,70,229,0.15)) !important;
+  box-shadow: 
+    0 4px 12px rgba(124, 58, 237, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(124, 58, 237, 0.4) !important;
+}

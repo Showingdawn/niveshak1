@@ -1,5 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { 
+  BookOpen, 
+  ShieldAlert, 
+  Calculator, 
+  Search, 
+  MessageSquare, 
+  TrendingUp, 
+  Flame, 
+  Award, 
+  ArrowRight,
+  RefreshCw
+} from 'lucide-react';
+import { tracks } from '../data/lessons';
 
 // --- Reusable CountUp Component (Part A, Feature 6) ---
 function CountUp({ end, duration = 1200, suffix = '', prefix = '' }) {
@@ -46,82 +59,35 @@ function CountUp({ end, duration = 1200, suffix = '', prefix = '' }) {
 }
 
 // --- Reusable 3D TiltCard Component (Part A, Feature 2) ---
-function TiltCard({ children, className = '', style = {}, onClick }) {
-  const cardRef = useRef(null);
-  const [isHovered, setIsHovered] = useState(false);
+function TiltCard({ children, className, style }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotateX = useSpring(useTransform(y, [-100, 100], [8, -8]), { stiffness: 300, damping: 30 });
+  const rotateY = useSpring(useTransform(x, [-100, 100], [-8, 8]), { stiffness: 300, damping: 30 });
 
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-
-  const springConfig = { damping: 22, stiffness: 100, mass: 0.7 };
-  const rXSpring = useSpring(rotateX, springConfig);
-  const rYSpring = useSpring(rotateY, springConfig);
-
-  const handleMouseMove = (e) => {
-    if (!cardRef.current || window.matchMedia('(hover: none)').matches) return;
-    
-    const card = cardRef.current;
-    const rect = card.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-
-    const mouseX = e.clientX - rect.left - width / 2;
-    const mouseY = e.clientY - rect.top - height / 2;
-
-    const angleX = -(mouseY / (height / 2)) * 6; // Max 6 deg rotation
-    const angleY = (mouseX / (width / 2)) * 6;
-
-    rotateX.set(angleX);
-    rotateY.set(angleY);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-    rotateX.set(0);
-    rotateY.set(0);
-  };
+  function handleMouseMove(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set(e.clientX - rect.left - rect.width / 2);
+    y.set(e.clientY - rect.top - rect.height / 2);
+  }
+  function handleMouseLeave() {
+    x.set(0);
+    y.set(0);
+  }
 
   return (
     <motion.div
-      ref={cardRef}
+      className={className}
+      style={{ rotateX, rotateY, transformPerspective: 800, ...style }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      style={{
-        ...style,
-        rotateX: rXSpring,
-        rotateY: rYSpring,
-        transformStyle: 'preserve-3d',
-        perspective: 1000,
-        scale: isHovered ? 1.015 : 1
-      }}
-      className={`glass-card ${className}`}
-      whileTap={{ scale: 0.98 }}
-      transition={{ scale: { duration: 0.2 } }}
     >
-      <div style={{ transform: 'translateZ(10px)', width: '100%', height: '100%' }}>
-        {children}
-      </div>
+      {children}
     </motion.div>
   );
 }
-import { 
-  BookOpen, 
-  ShieldAlert, 
-  Calculator, 
-  Search, 
-  MessageSquare, 
-  TrendingUp, 
-  Flame, 
-  Award, 
-  ArrowRight,
-  TrendingDown,
-  RefreshCw
-} from 'lucide-react';
-import { tracks } from '../data/lessons';
 
-export default function Dashboard({ lang, completedLessons = [], completedTracks = [], scanHistory = [], setCurrentRoute, getTxt }) {
+export default function Dashboard({ lang, setLang, completedLessons = [], completedTracks = [], scanHistory = [], setCurrentRoute, getTxt }) {
   const [userName, setUserName] = useState('');
   const [streak, setStreak] = useState(1);
   const [portfolioValue, setPortfolioValue] = useState(1000000);
@@ -134,41 +100,67 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
   const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [notifyEnabled, setNotifyEnabled] = useState(false);
 
+  const portalRef = useRef(null);
+
+  const handlePortalMouseMove = (e) => {
+    if (!portalRef.current) return;
+    const rect = portalRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    portalRef.current.style.setProperty('--mouse-x', `${x}px`);
+    portalRef.current.style.setProperty('--mouse-y', `${y}px`);
+  };
+
   useEffect(() => {
     // Load local storage values
     const storedName = localStorage.getItem('safalniveshak_username') || getTxt('Investor', 'निवेशक');
     setUserName(storedName);
 
-    const storedStreak = parseInt(localStorage.getItem('safalniveshak_streak') || '1', 10);
-    setStreak(storedStreak);
-
-    // Calculate simulated portfolio value from Abhyas virtual account
-    const storedBalance = parseFloat(localStorage.getItem('abhyas_cash') || '1000000');
-    const storedHoldings = JSON.parse(localStorage.getItem('abhyas_holdings') || '[]');
-    
-    // We can fetch live/mock prices to calculate holdings value or just sum them
-    let holdingsValue = 0;
-    storedHoldings.forEach(h => {
-      // Use average price as mock current price for simple display
-      holdingsValue += h.qty * h.avgPrice;
-    });
-
-    const totalVal = storedBalance + holdingsValue;
-    setPortfolioValue(totalVal);
-    
-    // Calculate total returns % (starting capital is ₹10L)
-    const returnsPct = ((totalVal - 1000000) / 1000000) * 100;
-    setPortfolioReturn(returnsPct);
-
-    // Load profiles switcher values
-    const activeId = localStorage.getItem('safalniveshak_active_profile_id') || 'default_profile';
-    setActiveProfileId(activeId);
     try {
-      const savedProfiles = localStorage.getItem('safalniveshak_profiles');
-      if (savedProfiles) setProfiles(JSON.parse(savedProfiles));
+      const storedStreak = localStorage.getItem('safalniveshak_streak');
+      if (storedStreak) setStreak(parseInt(storedStreak, 10));
     } catch (e) {}
 
-    // Load notification setting
+    // Load active simulated portfolio metrics (if they exist in localStorage)
+    try {
+      const storedPortfolio = localStorage.getItem('abhyas_portfolio_v2');
+      if (storedPortfolio) {
+        const parsed = JSON.parse(storedPortfolio);
+        if (parsed && parsed.balance !== undefined) {
+          const totalHoldingsValue = (parsed.holdings || []).reduce((sum, item) => {
+            const livePrice = item.avgBuyPrice * (1 + (Math.random() * 0.1 - 0.04));
+            return sum + item.quantity * livePrice;
+          }, 0);
+          const currentNetWorth = parsed.balance + totalHoldingsValue;
+          setPortfolioValue(currentNetWorth);
+          const initialCapital = 1000000;
+          const ret = ((currentNetWorth - initialCapital) / initialCapital) * 100;
+          setPortfolioReturn(ret);
+        }
+      }
+    } catch (err) {}
+
+    // Load profiles switcher
+    try {
+      const savedProfiles = localStorage.getItem('safalniveshak_profiles');
+      const activeId = localStorage.getItem('safalniveshak_active_profile_id') || 'default_profile';
+      setActiveProfileId(activeId);
+      if (savedProfiles) {
+        setProfiles(JSON.parse(savedProfiles));
+      } else {
+        const initialProfiles = [{
+          id: 'default_profile',
+          name: storedName,
+          xp: 150,
+          created_at: new Date().toLocaleDateString('en-IN'),
+          data: {}
+        }];
+        setProfiles(initialProfiles);
+        localStorage.setItem('safalniveshak_profiles', JSON.stringify(initialProfiles));
+      }
+    } catch (err) {}
+
+    // Load notification setting status
     const notifySaved = localStorage.getItem('safalniveshak_notifications_enabled') === 'true';
     setNotifyEnabled(notifySaved);
   }, [getTxt]);
@@ -240,9 +232,9 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
     };
 
     const lessons = JSON.parse(profileData.safalniveshak_lessons);
-    const tracks = JSON.parse(profileData.safalniveshak_tracks);
+    const tracksList = JSON.parse(profileData.safalniveshak_tracks);
     const history = JSON.parse(profileData.safalniveshak_history);
-    const xp = (lessons.length * 50) + (tracks.length * 200) + (history.length * 25);
+    const xp = (lessons.length * 50) + (tracksList.length * 200) + (history.length * 25);
 
     let updated = [...profilesList];
     const existingIdx = updated.findIndex(p => p.id === activeId);
@@ -372,7 +364,6 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
   };
 
   // Calculate XP and Levels
-  // 50 XP per lesson, 200 XP per track quiz exam, 25 XP per scam shield check
   const lessonsXP = completedLessons.length * 50;
   const tracksXP = completedTracks.length * 200;
   const scansXP = scanHistory.length * 25;
@@ -401,68 +392,132 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
   const nextLesson = getContinueLesson();
 
   const quickAccessItems = [
-    { id: 'seekho', label: getTxt('Seekho Classroom', 'सीखो पाठशाला'), icon: BookOpen, desc: getTxt('Bilingual lessons', 'द्विभाषी पाठ'), color: '#8b5cf6' },
+    { id: 'seekho', label: getTxt('Seekho Classroom', 'सीखो पाठशाला'), icon: BookOpen, desc: getTxt('Bilingual lessons', 'द्विभाषी पाठ'), color: '#a855f7' },
     { id: 'abhyas', label: getTxt('Abhyas Arena', 'अभ्यास सिमुलेटर'), icon: TrendingUp, desc: getTxt('Virtual trading', 'वर्चुअल ट्रेडिंग'), color: '#3b82f6' },
     { id: 'hisab', label: getTxt('Hisab Calculator', 'हिसाब कैलकुलेटर'), icon: Calculator, desc: getTxt('SIP & Tax options', 'एसआईपी व टैक्स'), color: '#06b6d4' },
     { id: 'bachao', label: getTxt('Scam Shield', 'बचाओ स्कैम शील्ड'), icon: ShieldAlert, desc: getTxt('Verify tips & links', 'टिप्स की जांच करें'), color: '#ef4444' },
-    { id: 'sebi', label: getTxt('SEBI Verification', 'सेबी सत्यापन'), icon: Search, desc: getTxt('Search registered RIAs', 'सत्यापित सलाहकार'), color: '#f59e0b' },
+    { id: 'sebi', label: getTxt('SEBI Verification', 'सेबी सत्यापन'), icon: Search, desc: getTxt('Search registered RIAs', 'सत्यापित सलाहकार'), color: '#fb923c' },
     { id: 'safalmitra', label: getTxt('SafalMitra AI', 'सफल मित्र चैट'), icon: MessageSquare, desc: getTxt('Offline support bot', 'सपोर्ट बोट'), color: '#10b981' }
   ];
 
+  const renderLangSelectorHUD = () => {
+    return (
+      <div style={{
+        position: 'relative',
+        display: 'inline-flex',
+        background: 'rgba(6, 11, 40, 0.6)',
+        border: '1px solid rgba(168, 85, 247, 0.4)',
+        borderRadius: '30px',
+        padding: '3px',
+        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.1)',
+        cursor: 'pointer',
+        alignItems: 'center',
+        userSelect: 'none',
+        perspective: '400px'
+      }}>
+        {/* Sliding Indicator background */}
+        <div style={{
+          position: 'absolute',
+          top: '3px',
+          bottom: '3px',
+          left: lang === 'en' ? '3px' : 'calc(50% + 1px)',
+          width: 'calc(50% - 4px)',
+          background: 'linear-gradient(135deg, #a855f7 0%, #06b6d4 100%)',
+          borderRadius: '30px',
+          boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
+          transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+          zIndex: 1,
+          transform: 'translateZ(6px)',
+          border: '1px solid rgba(255, 255, 255, 0.15)'
+        }} />
+        
+        {/* Buttons */}
+        <button
+          onClick={() => setLang && setLang('en')}
+          style={{
+            background: 'none',
+            border: 'none',
+            outline: 'none',
+            padding: '6px 18px',
+            fontSize: '0.78rem',
+            fontWeight: '800',
+            color: lang === 'en' ? '#fff' : 'rgba(255,255,255,0.6)',
+            cursor: 'pointer',
+            zIndex: 2,
+            transition: 'color 0.25s',
+            position: 'relative',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}
+        >
+          English
+        </button>
+        <button
+          onClick={() => setLang && setLang('hi')}
+          style={{
+            background: 'none',
+            border: 'none',
+            outline: 'none',
+            padding: '6px 18px',
+            fontSize: '0.78rem',
+            fontWeight: '800',
+            color: lang === 'hi' ? '#fff' : 'rgba(255,255,255,0.6)',
+            cursor: 'pointer',
+            zIndex: 2,
+            transition: 'color 0.25s',
+            position: 'relative',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}
+        >
+          हिन्दी
+        </button>
+      </div>
+    );
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }} className="perspective-container">
       
-      {/* HEADER SECTION */}
+      {/* HEADER COCKPIT SECTION */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
         gap: '16px',
-        paddingBottom: '8px'
+        paddingBottom: '12px',
+        borderBottom: '1px solid rgba(168, 85, 247, 0.15)'
       }}>
         <div>
-          <h2 style={{ fontSize: '1.8rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '4px' }}>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', marginBottom: '4px', textShadow: '0 0 12px rgba(168, 85, 247, 0.45)' }}>
             {getTxt(`Namaste, ${userName}! 👋`, `नमस्ते, ${userName}! 👋`)}
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+          <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.95rem', margin: 0 }}>
             {getTxt('Welcome back to your sovereign financial headquarters.', 'आपके वित्तीय सुरक्षा और शिक्षा मुख्यालय में आपका स्वागत है।')}
           </p>
         </div>
 
-        {/* Streak & Level Badges */}
-        <div style={{ display: 'flex', gap: '12px' }}>
+        {/* HUD Switcher & badges */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          {/* Bilingual Switch HUD */}
+          {renderLangSelectorHUD()}
+
           {/* Daily Streak */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '12px',
-            padding: '8px 16px',
-            color: '#f87171'
+            border: '1.5px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '20px',
+            padding: '8px 18px',
+            color: '#f87171',
+            boxShadow: '0 4px 12px rgba(239, 68, 68, 0.1)'
           }}>
-            <Flame size={20} fill="#f87171" style={{ animation: 'pulse 1.5s infinite' }} />
-            <span style={{ fontSize: '0.95rem', fontWeight: '800' }}>
-              {streak} {getTxt('Day Streak', 'दिन का सिलसिला')}
-            </span>
-          </div>
-
-          {/* Level Badge */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            backgroundColor: 'rgba(167, 139, 250, 0.1)',
-            border: '1px solid rgba(167, 139, 250, 0.3)',
-            borderRadius: '12px',
-            padding: '8px 16px',
-            color: '#a78bfa'
-          }}>
-            <Award size={20} />
-            <span style={{ fontSize: '0.95rem', fontWeight: '800' }}>
-              {getTxt(`Lvl ${level}`, `स्तर ${level}`)}
+            <Flame size={18} fill="#f87171" style={{ animation: 'pulse 1.5s infinite' }} />
+            <span style={{ fontSize: '0.85rem', fontWeight: '800' }}>
+              {streak} {getTxt('Days', 'दिन')}
             </span>
           </div>
         </div>
@@ -476,27 +531,33 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
         position: 'relative',
         zIndex: 2
       }}>
-        {/* Progress Ring Widget */}
-        <TiltCard style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px' }}>
-          {/* Progress Circular Ring SVG */}
-          <div style={{ position: 'relative', width: '80px', height: '80px', flexShrink: 0 }}>
+        {/* Progress Circular Telemetry Dial */}
+        <TiltCard className="holographic-glass glow-breathe" style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '24px 20px' }}>
+          <div style={{
+            position: 'relative', 
+            width: '90px', 
+            height: '90px', 
+            flexShrink: 0,
+            transform: 'translateZ(10px)',
+            filter: 'drop-shadow(0 0 12px rgba(168, 85, 247, 0.45))'
+          }}>
             <svg style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
               <circle 
-                cx="40" cy="40" r="34" 
-                stroke="rgba(255,255,255,0.05)" strokeWidth="6" fill="transparent" 
+                cx="45" cy="45" r="38" 
+                stroke="rgba(6, 11, 40, 0.6)" strokeWidth="6" fill="transparent" 
               />
               <circle 
-                cx="40" cy="40" r="34" 
-                stroke="url(#purpleGrad)" strokeWidth="6" fill="transparent" 
-                strokeDasharray="213.6"
-                strokeDashoffset={213.6 - (213.6 * progressPercent) / 100}
+                cx="45" cy="45" r="38" 
+                stroke="url(#dialGrad)" strokeWidth="6" fill="transparent" 
+                strokeDasharray="238.7"
+                strokeDashoffset={238.7 - (238.7 * progressPercent) / 100}
                 strokeLinecap="round"
-                style={{ transition: 'stroke-dashoffset 0.6s ease' }}
+                style={{ transition: 'stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1)' }}
               />
               <defs>
-                <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#a78bfa" />
-                  <stop offset="100%" stopColor="#7c3aed" />
+                <linearGradient id="dialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#a855f7" />
+                  <stop offset="100%" stopColor="#06b6d4" />
                 </linearGradient>
               </defs>
             </svg>
@@ -504,103 +565,157 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
               position: 'absolute', inset: 0, 
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
             }}>
-              <span style={{ fontSize: '1.15rem', fontWeight: '800', color: 'var(--text-primary)' }}>{progressPercent}%</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff', textShadow: '0 0 8px rgba(6, 182, 212, 0.8)' }}>
+                {progressPercent}%
+              </span>
             </div>
           </div>
 
           <div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              {getTxt('XP Accumulation', 'अनुभव संचय')}
-            </span>
-            <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)', margin: '2px 0 4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
+              <span style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: '700' }}>
+                {getTxt('XP Accumulation', 'अनुभव संचय')}
+              </span>
+              <span style={{
+                fontSize: '0.62rem',
+                backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                color: '#c084fc',
+                padding: '2px 8px',
+                borderRadius: '8px',
+                border: '1px solid rgba(168, 85, 247, 0.3)',
+                fontWeight: '800'
+              }}>
+                Lvl {level}
+              </span>
+            </div>
+            <h4 style={{ fontSize: '1.4rem', fontWeight: '900', color: '#fff', margin: '2px 0 4px' }}>
               <CountUp end={totalXP} /> XP
             </h4>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
+            <p style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.65)', margin: 0 }}>
               {getTxt(`${xpPerLevel - xpInCurrentLevel} XP to Level ${level + 1}`, `स्तर ${level + 1} के लिए ${xpPerLevel - xpInCurrentLevel} XP चाहिए`)}
             </p>
           </div>
         </TiltCard>
 
         {/* Portfolio Snapshot Widget */}
-        <TiltCard style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px' }}>
+        <TiltCard className="holographic-glass glow-breathe" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '24px 20px' }}>
           <div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: '700' }}>
               {getTxt('Virtual Net Worth (Abhyas)', 'आभासी कुल मूल्य (अभ्यास)')}
             </span>
-            <h4 style={{ fontSize: '1.6rem', fontWeight: '900', color: 'var(--text-primary)', margin: '4px 0 2px' }}>
+            <h4 style={{ fontSize: '1.6rem', fontWeight: '900', color: '#fff', margin: '4px 0 2px', textShadow: '0 0 10px rgba(6, 182, 212, 0.2)' }}>
               <CountUp end={portfolioValue} prefix="₹" />
             </h4>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
             {portfolioReturn >= 0 ? (
-              <span style={{ color: 'var(--color-green)', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+              <span style={{ color: '#22c55e', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '2px', textShadow: '0 0 6px rgba(34,197,94,0.3)' }}>
                 ▲ +<CountUp end={portfolioReturn.toFixed(2)} />%
               </span>
             ) : (
-              <span style={{ color: 'var(--color-red)', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+              <span style={{ color: '#ef4444', fontWeight: '800', display: 'inline-flex', alignItems: 'center', gap: '2px', textShadow: '0 0 6px rgba(239,68,68,0.3)' }}>
                 ▼ <CountUp end={portfolioReturn.toFixed(2)} />%
               </span>
             )}
-            <span style={{ color: 'var(--text-tertiary)' }}>{getTxt('all-time simulated returns', 'सभी समय का डमी रिटर्न')}</span>
+            <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>{getTxt('simulated returns', 'सभी समय का डमी रिटर्न')}</span>
           </div>
         </TiltCard>
 
-        {/* Continue Learning Card */}
+        {/* Sovereign Portal Card (Continue Learning) */}
         <TiltCard 
-          className="glass-card-shimmer"
+          className="holographic-glass glow-breathe"
           style={{ 
-            display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px',
-            background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%)',
-            borderColor: 'rgba(124, 58, 237, 0.3)'
+            display: 'flex', 
+            flexDirection: 'column', 
+            justifyContent: 'space-between', 
+            padding: '24px 20px',
+            background: 'radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(217, 119, 6, 0.22) 0%, transparent 70%), rgba(6, 11, 40, 0.45)',
           }}
         >
-          <div>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              {getTxt('Continue Learning', 'अध्ययन जारी रखें')}
-            </span>
-            {nextLesson ? (
-              <>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)', margin: '4px 0 2px' }}>
-                  {getTxt(nextLesson.titleEn, nextLesson.titleHi)}
-                </h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
-                  {getTxt(`Next up in ${nextLesson.trackName}`, `${nextLesson.trackName} में अगला पाठ`)}
-                </p>
-              </>
-            ) : (
-              <>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: 'var(--text-primary)', margin: '4px 0 2px' }}>
-                  🎉 {getTxt('Curriculum Completed!', 'पाठ्यक्रम पूर्ण!')}
-                </h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
-                  {getTxt('Congratulations! You completed all standard modules.', 'बधाई हो! आपने सभी मानक मॉड्यूल पूरे कर लिए हैं।')}
-                </p>
-              </>
+          <div 
+            ref={portalRef}
+            onMouseMove={handlePortalMouseMove}
+            style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flexGrow: 1 }}
+          >
+            <div>
+              {/* Sovereign Portal Header Badge */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.72rem', color: '#fb923c', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '800' }}>
+                  {getTxt('SOVEREIGN PORTAL', 'सॉवरेन पोर्टल')}
+                </span>
+                <span style={{ 
+                  fontSize: '0.62rem', 
+                  color: '#fb923c', 
+                  background: 'rgba(251, 146, 60, 0.1)', 
+                  border: '1.5px solid rgba(251, 146, 60, 0.35)', 
+                  padding: '2px 8px', 
+                  borderRadius: '10px',
+                  fontWeight: '900',
+                  textShadow: '0 0 4px rgba(251, 146, 60, 0.5)'
+                }}>
+                  {getTxt('GOLD CLASS', 'स्वर्ण श्रेणी')}
+                </span>
+              </div>
+
+              {nextLesson ? (
+                <>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: '#fff', margin: '4px 0 2px' }}>
+                    {getTxt(nextLesson.titleEn, nextLesson.titleHi)}
+                  </h4>
+                  <p style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.65)', margin: 0 }}>
+                    {getTxt(`Next target in ${nextLesson.trackName}`, `${nextLesson.trackName} में अगला पाठ`)}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h4 style={{ fontSize: '1.05rem', fontWeight: '800', color: '#fff', margin: '4px 0 2px' }}>
+                    🎉 {getTxt('Curriculum Completed!', 'पाठ्यक्रम पूर्ण!')}
+                  </h4>
+                  <p style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.65)', margin: 0 }}>
+                    {getTxt('Congratulations! You completed all standard modules.', 'बधाई हो! आपने सभी मानक मॉड्यूल पूरे कर लिए हैं।')}
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* Dynamic Progress indicator */}
+            <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'rgba(255, 255, 255, 0.5)' }}>
+                <span>{getTxt('MISSION CHECKPOINT', 'मिशन चेकपॉइंट')}</span>
+                <span>{completedLessons.length} / 9</span>
+              </div>
+              <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ 
+                  width: `${(completedLessons.length / 9) * 100}%`, 
+                  height: '100%', 
+                  background: 'linear-gradient(90deg, #a855f7, #06b6d4)',
+                  boxShadow: '0 0 8px #06b6d4'
+                }} />
+              </div>
+            </div>
+
+            {nextLesson && (
+              <button 
+                onClick={() => {
+                  setCurrentRoute('seekho');
+                }}
+                className="btn-3d"
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: '14px'
+                }}
+              >
+                {getTxt('Resume Course', 'पाठ पर जाएं')} <ArrowRight size={12} style={{ marginLeft: '4px' }} />
+              </button>
             )}
           </div>
-          {nextLesson && (
-            <button 
-              onClick={() => {
-                setCurrentRoute('seekho');
-              }}
-              className="btn-3d btn-3d-primary"
-              style={{
-                alignSelf: 'flex-start',
-                marginTop: '12px',
-                padding: '6px 14px',
-                fontSize: '0.75rem'
-              }}
-            >
-              {getTxt('Resume Course', 'पाठ पर जाएं')} <ArrowRight size={12} style={{ marginLeft: '4px' }} />
-            </button>
-          )}
         </TiltCard>
       </div>
 
       {/* QUICK ACCESS ACTION GRID */}
       <div>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)', marginBottom: '16px' }}>
-          {getTxt('Interactive Hub', 'इंटरएक्टिव हब')}
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff', marginBottom: '16px', textShadow: '0 0 8px rgba(168, 85, 247, 0.3)' }}>
+          {getTxt('Interactive Hub Terminal', 'इंटरएक्टिव हब टर्मिनल')}
         </h3>
 
         <div style={{
@@ -611,74 +726,57 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
           {quickAccessItems.map(item => {
             const Icon = item.icon;
             return (
-              <TiltCard
+              <button
                 key={item.id}
                 onClick={() => setCurrentRoute(item.id)}
-                className="btn-3d"
+                className="icon-tile"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',
-                  padding: '16px 20px',
+                  padding: '18px 20px',
                   cursor: 'pointer',
                   width: '100%',
-                  border: '1px solid var(--border-glass)',
-                  background: 'var(--bg-glass)',
-                  textAlign: 'left'
+                  textAlign: 'left',
+                  outline: 'none',
+                  border: 'none',
+                  color: 'inherit'
                 }}
               >
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  width: '44px', height: '44px', borderRadius: '10px',
+                  width: '46px', height: '46px', borderRadius: '12px',
                   backgroundColor: `${item.color}20`, color: item.color,
-                  filter: `drop-shadow(0 2px 8px ${item.color}35)`
+                  filter: `drop-shadow(0 2px 10px ${item.color}45)`,
+                  border: `1px solid ${item.color}40`,
+                  flexShrink: 0
                 }}>
-                  <Icon size={24} />
+                  <Icon size={22} />
                 </div>
                 <div>
-                  <h4 style={{ fontSize: '0.92rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
+                  <h4 style={{ fontSize: '0.94rem', fontWeight: '900', color: '#fff', margin: 0 }}>
                     {item.label}
                   </h4>
-                  <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+                  <p style={{ fontSize: '0.74rem', color: 'rgba(255,255,255,0.5)', margin: '4px 0 0' }}>
                     {item.desc}
                   </p>
                 </div>
-              </TiltCard>
+              </button>
             );
           })}
         </div>
       </div>
 
       {/* DATA MANAGEMENT & BACKUP SETTINGS CARD */}
-      {/* AMBIENT BACKGROUND ORBS FOR DEPTH */}
-      <div className="ambient-orb" style={{
-        width: '350px',
-        height: '350px',
-        background: 'radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%)',
-        top: '10%',
-        left: '-50px',
-      }} />
-      <div className="ambient-orb" style={{
-        width: '400px',
-        height: '400px',
-        background: 'radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%)',
-        bottom: '20%',
-        right: '-100px',
-      }} />
-
-      {/* DATA MANAGEMENT & BACKUP SETTINGS CARD */}
-      <div className="glass-card" style={{
-        marginTop: '28px',
+      <div className="holographic-glass glow-breathe" style={{
+        marginTop: '12px',
         padding: '24px 20px',
-        border: '1px solid var(--border-glass)',
-        background: 'var(--bg-glass)',
-        position: 'relative',
         zIndex: 2
       }}>
-        <h3 style={{ fontSize: '1.15rem', color: 'var(--color-amber)', fontWeight: '900', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h3 style={{ fontSize: '1.2rem', color: '#fb923c', fontWeight: '900', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px', textShadow: '0 0 6px rgba(251, 146, 60, 0.4)' }}>
           ⚙️ {getTxt("Offline Data Management", "ऑफलाइन डेटा प्रबंधन")}
         </h3>
-        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0 0 16px 0' }}>
+        <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.65)', margin: '0 0 20px 0', lineHeight: '1.5' }}>
           {getTxt(
             "Export or import your user profile, learning progress, simulated portfolios, and settings to a local JSON file.",
             "अपने यूज़र प्रोफ़ाइल, सीखने की प्रगति, सिमुलेटेड पोर्टफोलियो और सेटिंग्स को स्थानीय JSON फ़ाइल में एक्सपोर्ट या इम्पोर्ट करें।"
@@ -689,9 +787,9 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
           <button
             type="button"
             onClick={handleExportData}
-            className="btn-3d btn-3d-primary"
+            className="btn-3d"
             style={{
-              padding: '9px 18px',
+              padding: '10px 20px',
               fontSize: '0.85rem',
             }}
           >
@@ -703,10 +801,11 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
               type="button"
               className="btn-3d"
               style={{
-                padding: '9px 18px',
+                padding: '10px 20px',
                 fontSize: '0.85rem',
-                border: '1px solid var(--border-glass)',
-                color: 'var(--text-secondary)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: 'rgba(255,255,255,0.04)',
+                color: 'rgba(255,255,255,0.8)',
               }}
             >
               📤 {getTxt("Import Data", "डेटा इम्पोर्ट करें")}
@@ -732,10 +831,10 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
             onClick={handleToggleNotifications}
             className="btn-3d"
             style={{
-              borderColor: notifyEnabled ? '#22c55e' : 'var(--btn-border)',
-              backgroundColor: notifyEnabled ? 'rgba(34,197,94,0.1)' : 'var(--btn-bg)',
-              color: notifyEnabled ? '#22c55e' : 'var(--text-secondary)',
-              padding: '9px 18px',
+              borderColor: notifyEnabled ? '#22c55e' : 'rgba(255,255,255,0.1)',
+              background: notifyEnabled ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.04)',
+              color: notifyEnabled ? '#22c55e' : 'rgba(255,255,255,0.8)',
+              padding: '10px 20px',
               fontSize: '0.85rem',
             }}
           >
@@ -744,8 +843,8 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
         </div>
 
         {/* Profile Switcher Section */}
-        <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '16px', marginTop: '16px' }}>
-          <h4 style={{ fontSize: '0.92rem', color: 'var(--color-amber)', fontWeight: '800', margin: '0 0 10px 0' }}>
+        <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '20px', marginTop: '20px' }}>
+          <h4 style={{ fontSize: '0.95rem', color: '#fb923c', fontWeight: '900', margin: '0 0 12px 0' }}>
             👤 {getTxt("User Profile Switcher", "यूज़र प्रोफ़ाइल स्विच करें")}
           </h4>
           
@@ -759,10 +858,10 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
                   onClick={() => handleSwitchProfile(p.id)}
                   className="btn-3d"
                   style={{
-                    backgroundColor: isActive ? 'rgba(217,142,4,0.15)' : 'var(--btn-bg)',
-                    borderColor: isActive ? 'var(--color-amber)' : 'var(--border-glass)',
-                    color: isActive ? 'var(--color-amber)' : 'var(--text-secondary)',
-                    padding: '6px 14px',
+                    background: isActive ? 'rgba(251,146,60,0.15)' : 'rgba(255,255,255,0.04)',
+                    borderColor: isActive ? '#fb923c' : 'rgba(255,255,255,0.1)',
+                    color: isActive ? '#fb923c' : 'rgba(255,255,255,0.8)',
+                    padding: '8px 16px',
                     fontSize: '0.8rem',
                   }}
                 >
@@ -776,10 +875,10 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
               onClick={() => setShowCreateProfile(!showCreateProfile)}
               className="btn-3d"
               style={{
-                backgroundColor: 'rgba(34,197,94,0.1)',
+                background: 'rgba(34,197,94,0.15)',
                 borderColor: '#22c55e',
                 color: '#22c55e',
-                padding: '6px 14px',
+                padding: '8px 16px',
                 fontSize: '0.8rem',
               }}
             >
@@ -788,7 +887,7 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
           </div>
 
           {showCreateProfile && (
-            <form onSubmit={handleCreateProfile} style={{ display: 'flex', gap: '10px', maxWidth: '400px', marginTop: '10px' }}>
+            <form onSubmit={handleCreateProfile} style={{ display: 'flex', gap: '10px', maxWidth: '400px', marginTop: '12px' }}>
               <input
                 type="text"
                 placeholder={getTxt("Enter profile name...", "प्रोफ़ाइल नाम दर्ज करें...")}
@@ -796,20 +895,20 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
                 onChange={e => setNewProfileName(e.target.value)}
                 style={{
                   flex: 1,
-                  backgroundColor: 'rgba(0,0,0,0.2)',
-                  border: '1px solid var(--border-glass)',
-                  borderRadius: '8px',
-                  color: 'var(--text-primary)',
-                  padding: '8px 12px',
-                  fontSize: '0.82rem',
+                  backgroundColor: 'rgba(6, 11, 40, 0.6)',
+                  border: '1px solid rgba(168, 85, 247, 0.4)',
+                  borderRadius: '12px',
+                  color: '#fff',
+                  padding: '10px 16px',
+                  fontSize: '0.85rem',
                   outline: 'none'
                 }}
               />
               <button
                 type="submit"
-                className="btn-3d btn-3d-primary"
+                className="btn-3d"
                 style={{
-                  padding: '8px 16px',
+                  padding: '8px 18px',
                   fontSize: '0.82rem',
                 }}
               >

@@ -461,6 +461,7 @@ export default function App() {
         {currentRoute === 'home' && (
           <Dashboard 
             lang={lang}
+            setLang={setLang}
             completedLessons={completedLessons}
             completedTracks={completedTracks}
             scanHistory={scanHistory}

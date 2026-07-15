@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /**
- * DisclaimerBanner — Phase 1, Feature 1
- * Sticky dismissible educational disclaimer strip.
- * Bilingual (Hindi/English). Saves dismissal to localStorage.
+ * DisclaimerBanner — Overhauled 3D Holographic Status Ribbon
+ * Centered top viewport capsule utilizing Saturation Cosmic Navy recipe,
+ * spring-based slide-down entrance, and rotateX horizontal fold dismissal.
  */
 export default function DisclaimerBanner({ lang = 'en' }) {
   const [dismissed, setDismissed] = useState(() => {
     return localStorage.getItem('safalniveshak_disclaimer_dismissed') === 'true';
   });
+  
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleDismiss = () => {
     localStorage.setItem('safalniveshak_disclaimer_dismissed', 'true');
@@ -21,76 +28,77 @@ export default function DisclaimerBanner({ lang = 'en' }) {
   const textHi = "⚠️ केवल शैक्षिक उपकरण — SafalNiveshak एक SEBI-पंजीकृत निवेश सलाहकार नहीं है। सभी सामग्री केवल सीखने के उद्देश्य से है। निवेश से पहले किसी प्रमाणित वित्तीय सलाहकार से परामर्श लें।";
 
   return (
-    <div style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 9999,
-      background: 'linear-gradient(135deg, rgba(20,10,40,0.97) 0%, rgba(40,10,20,0.97) 100%)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      borderBottom: '1px solid rgba(255, 160, 60, 0.4)',
-      padding: '10px 20px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: '12px',
-      boxShadow: '0 2px 20px rgba(255,100,0,0.15)',
-    }}>
-      {/* Icon */}
-      <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>🛡️</span>
+    <AnimatePresence>
+      {isMounted && !dismissed && (
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%', position: 'sticky', top: '12px', zIndex: 9999, perspective: '1200px' }}>
+          <motion.div
+            initial={{ opacity: 0, y: -60, rotateX: -20 }}
+            animate={{ opacity: 1, y: 0, rotateX: 0 }}
+            exit={{ opacity: 0, rotateX: 90, scaleY: 0, transition: { duration: 0.4, ease: "easeInOut" } }}
+            className="holographic-glass glow-breathe"
+            style={{
+              width: '94%',
+              maxWidth: '1160px',
+              padding: '10px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '16px',
+              transformOrigin: 'top center',
+              border: '1px solid rgba(168, 85, 247, 0.35)',
+              borderRadius: '16px',
+            }}
+          >
+            {/* Left side info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <span style={{ fontSize: '1.2rem', flexShrink: 0, filter: 'drop-shadow(0 0 8px rgba(6, 182, 212, 0.6))' }}>🛡️</span>
+              <p style={{
+                margin: 0,
+                fontSize: '0.78rem',
+                lineHeight: '1.5',
+                color: '#c084fc',
+                fontWeight: '600',
+                letterSpacing: '0.01em',
+              }}>
+                {lang === 'en' ? textEn : textHi}
+              </p>
+            </div>
 
-      {/* Text */}
-      <p style={{
-        flex: 1,
-        margin: 0,
-        fontSize: '0.78rem',
-        lineHeight: '1.5',
-        color: 'rgba(255, 200, 120, 0.95)',
-        fontWeight: '500',
-        letterSpacing: '0.01em',
-      }}>
-        {lang === 'en' ? textEn : textHi}
-      </p>
+            {/* Right side controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
+              <span style={{
+                fontSize: '0.65rem',
+                color: '#06b6d4',
+                fontWeight: '800',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                background: 'rgba(6, 182, 212, 0.1)',
+                padding: '3px 8px',
+                borderRadius: '6px',
+                border: '1px solid rgba(6, 182, 212, 0.2)'
+              }}>
+                {lang === 'en' ? 'Sandbox Secure' : 'सैंडबॉक्स सुरक्षित'}
+              </span>
 
-      {/* Toggle lang hint */}
-      <span style={{
-        fontSize: '0.7rem',
-        color: 'rgba(255,200,120,0.5)',
-        whiteSpace: 'nowrap',
-        flexShrink: 0,
-        display: 'none', // shown via media query on wider screens
-      }}>
-        {lang === 'en' ? 'Not financial advice' : 'वित्तीय सलाह नहीं'}
-      </span>
-
-      {/* Dismiss button */}
-      <button
-        onClick={handleDismiss}
-        aria-label="Dismiss disclaimer"
-        style={{
-          background: 'rgba(255,255,255,0.08)',
-          border: '1px solid rgba(255,160,60,0.3)',
-          borderRadius: '6px',
-          color: 'rgba(255,200,120,0.8)',
-          cursor: 'pointer',
-          fontSize: '0.75rem',
-          padding: '4px 12px',
-          flexShrink: 0,
-          whiteSpace: 'nowrap',
-          transition: 'all 0.2s ease',
-          fontWeight: '600',
-        }}
-        onMouseEnter={e => {
-          e.target.style.background = 'rgba(255,160,60,0.2)';
-          e.target.style.color = '#fff';
-        }}
-        onMouseLeave={e => {
-          e.target.style.background = 'rgba(255,255,255,0.08)';
-          e.target.style.color = 'rgba(255,200,120,0.8)';
-        }}
-      >
-        {lang === 'en' ? 'Got it ✕' : 'समझ गया ✕'}
-      </button>
-    </div>
+              <button
+                onClick={handleDismiss}
+                aria-label="Dismiss disclaimer"
+                className="btn-3d"
+                style={{
+                  fontSize: '0.7rem',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(135deg, #a855f7 0%, #06b6d4 100%)',
+                  whiteSpace: 'nowrap',
+                  fontWeight: '800'
+                }}
+              >
+                {lang === 'en' ? 'Got it ✕' : 'समझ गया ✕'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 }

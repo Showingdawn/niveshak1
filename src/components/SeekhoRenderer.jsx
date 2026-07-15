@@ -321,25 +321,23 @@ export default function SeekhoRenderer(props) {
                 return (
                   <div
                     key={idx}
+                    className="holographic-glass"
                     style={{
-                      backgroundColor: isPlaying ? 'rgba(124,58,237,0.06)' : '#070E1A',
-                      border: isPlaying ? '1px solid rgba(124,58,237,0.6)' : '1px solid #1a2840',
-                      boxShadow: isPlaying ? '0 0 16px rgba(124,58,237,0.15)' : 'none',
-                      borderRadius: '8px',
                       padding: '16px',
                       fontSize: '0.92rem',
-                      color: '#E8E4DA',
+                      color: '#fff',
                       lineHeight: '1.6',
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: '14px',
-                      transition: 'all 0.25s ease',
+                      border: isPlaying ? '1px solid rgba(6, 182, 212, 0.6)' : '1px solid rgba(168, 85, 247, 0.25)',
+                      boxShadow: isPlaying ? '0 0 16px rgba(6, 182, 212, 0.2)' : 'none',
                     }}
                   >
                     <button
                       onClick={() => handleToggleSpeech(ch, idx)}
                       style={{
-                        background: isPlaying ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.04)',
+                        background: isPlaying ? 'rgba(124, 58, 237, 0.2)' : 'rgba(255,255,255,0.04)',
                         border: '1px solid rgba(255,255,255,0.08)',
                         borderRadius: '50%',
                         width: '36px',
@@ -523,36 +521,43 @@ export default function SeekhoRenderer(props) {
       {/* SUB-TIER SEGMENTED FILTER TAB MENU */}
       <div style={{
         display: 'flex',
-        backgroundColor: '#0A1628',
-        border: '1.2px solid #1a2840',
-        borderRadius: '8px',
+        background: 'rgba(6, 11, 40, 0.6)',
+        border: '1.2px solid rgba(168, 85, 247, 0.4)',
+        borderRadius: '30px',
         padding: '6px',
-        gap: '6px'
+        gap: '8px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.1)',
       }}>
         {[
           { key: 'BEGINNER', label: getTxt("Tier 1: Beginner", "टियर 1: शुरुआती") },
           { key: 'INTERMEDIATE', label: getTxt("Tier 2: Intermediate", "टियर 2: मध्यम") },
           { key: 'ADVANCED', label: getTxt("Tier 3: Advanced", "टियर 3: उन्नत") }
-        ].map(tab => (
-          <button
-            key={tab.key}
-            onClick={() => { setActiveTier(tab.key); setBypassAlert(null); }}
-            style={{
-              flex: 1,
-              backgroundColor: activeTier === tab.key ? 'var(--color-amber)' : 'transparent',
-              border: 'none',
-              borderRadius: '4px',
-              color: activeTier === tab.key ? '#000' : '#8FA0B5',
-              fontWeight: '800',
-              padding: '10px 0',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease'
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        ].map(tab => {
+          const isActive = activeTier === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => { setActiveTier(tab.key); setBypassAlert(null); }}
+              style={{
+                flex: 1,
+                background: isActive ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(6, 182, 212, 0.25) 100%)' : 'transparent',
+                border: isActive ? '1.5px solid #06b6d4' : '1.5px solid transparent',
+                borderRadius: '20px',
+                color: isActive ? '#fff' : 'rgba(255, 255, 255, 0.65)',
+                fontWeight: '900',
+                padding: '10px 0',
+                fontSize: '0.85rem',
+                cursor: 'pointer',
+                transition: 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)',
+                textShadow: isActive ? '0 0 6px #06b6d4' : 'none',
+                boxShadow: isActive ? '0 0 15px rgba(6, 182, 212, 0.35)' : 'none',
+                outline: 'none'
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* EXCEPTION BYPASS ALERT BANNER */}
@@ -589,34 +594,37 @@ export default function SeekhoRenderer(props) {
           return (
             <div
               key={moduleId}
-              className="ledger-card"
+              className="holographic-glass perspective-card"
               style={{
-                backgroundColor: '#0A1628',
-                border: isLocked ? '1px solid #1a2840' : (isCompleted ? '2px solid var(--color-green)' : '2px solid var(--color-amber)'),
-                borderRadius: '10px',
-                padding: '20px',
-                opacity: isLocked ? 0.55 : 1.0,
+                padding: '24px 20px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-                cursor: isLocked ? 'not-allowed' : 'pointer'
+                cursor: isLocked ? 'not-allowed' : 'pointer',
+                minHeight: '260px',
+                position: 'relative',
+                transformStyle: 'preserve-3d',
+                border: isCompleted 
+                  ? '2px solid rgba(34, 197, 94, 0.45)' 
+                  : (isLocked ? '1px solid rgba(255,255,255,0.06)' : '2px solid rgba(168, 85, 247, 0.4)')
               }}
               onClick={() => handleEnterStudy(moduleId, activeTier)}
             >
-              <div>
+              <div style={{ transform: 'translateZ(10px)', opacity: isLocked ? 0.35 : 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <span className="ticket-label" style={{ color: '#8FA0B5' }}>{moduleId.toUpperCase()}</span>
-                  <span>{isLocked ? '🔒' : (isCompleted ? '★ COMPLETED' : '🔓 UNLOCKED')}</span>
+                  <span className="ticket-label" style={{ color: 'rgba(255, 255, 255, 0.5)' }}>{moduleId.toUpperCase()}</span>
+                  <span style={{ fontSize: '0.72rem', fontWeight: '800', color: isCompleted ? '#22c55e' : '#fb923c' }}>
+                    {isCompleted ? '★ COMPLETED' : '🔓 UNLOCKED'}
+                  </span>
                 </div>
 
-                <h3 style={{ fontSize: '1.15rem', color: '#E8E4DA', margin: '4px 0 6px 0', fontWeight: '800' }}>
+                <h3 style={{ fontSize: '1.15rem', color: '#fff', margin: '4px 0 6px 0', fontWeight: '800' }}>
                   {getTxt(mod[activeTier].titleEn, mod[activeTier].titleHi)}
                 </h3>
 
-                <div style={{ fontSize: '0.78rem', color: '#8FA0B5', lineHeight: '1.45', margin: '8px 0 16px 0' }}>
-                  <strong style={{ color: 'var(--color-amber)', display: 'block', marginBottom: '6px' }}>
-                    {getTxt("Modules Covered:", "कवर किए गए विषय:")}
+                <div style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.65)', lineHeight: '1.45', margin: '8px 0 16px 0' }}>
+                  <strong style={{ color: '#fb923c', display: 'block', marginBottom: '6px' }}>
+                    {getTxt("Chapters Covered:", "कवर किए गए विषय:")}
                   </strong>
                   <ul style={{ paddingLeft: '16px', margin: 0, listStyleType: 'square' }}>
                     {(lang === 'en' ? mod[activeTier].chapters : mod[activeTier].chaptersHi).slice(0, 3).map((ch, idx) => (
@@ -626,38 +634,88 @@ export default function SeekhoRenderer(props) {
                 </div>
               </div>
 
-              <div>
+              <div style={{ transform: 'translateZ(10px)', opacity: isLocked ? 0.3 : 1 }}>
                 {/* Visual Progress Bar */}
-                <div style={{ width: '100%', height: '4px', backgroundColor: '#070E1A', borderRadius: '2px', overflow: 'hidden', marginBottom: '12px' }}>
+                <div style={{ width: '100%', height: '4px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden', marginBottom: '12px' }}>
                   <div style={{
-                    width: isCompleted ? '100%' : (isLocked ? '0%' : '30%'),
+                    width: isCompleted ? '100%' : '30%',
                     height: '100%',
-                    backgroundColor: isCompleted ? '#22c55e' : 'var(--color-amber)'
+                    background: isCompleted ? 'linear-gradient(90deg, #22c55e, #10b981)' : 'linear-gradient(90deg, #a855f7, #06b6d4)'
                   }} />
                 </div>
 
-                {isLocked ? (
-                  <span style={{ fontSize: '0.7rem', color: '#ef4444', fontWeight: 'bold', display: 'block' }}>
-                    ⚠️ Complete previous tier chapters first.
-                  </span>
-                ) : (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleEnterStudy(moduleId, activeTier); }}
-                    className="btn btn-primary"
-                    style={{
-                      padding: '8px 14px',
-                      fontSize: '0.75rem',
-                      width: '100%',
-                      backgroundColor: isCompleted ? 'rgba(34,197,94,0.1)' : 'var(--color-amber)',
-                      color: isCompleted ? '#22c55e' : '#000',
-                      border: isCompleted ? '1px solid #22c55e' : 'none',
-                      fontWeight: 'bold'
-                    }}
-                  >
-                    {isCompleted ? getTxt("Review Study & Quiz ➔", "अध्ययन और प्रश्नोत्तरी समीक्षा ➔") : getTxt("Enter Study & Combat Quiz ➔", "अध्ययन और प्रश्नोत्तरी प्रारंभ ➔")}
-                  </button>
-                )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleEnterStudy(moduleId, activeTier); }}
+                  className="btn-3d"
+                  style={{
+                    padding: '8px 14px',
+                    fontSize: '0.75rem',
+                    width: '100%',
+                  }}
+                >
+                  {isCompleted ? getTxt("Review Study & Quiz ➔", "अध्ययन और प्रश्नोत्तरी समीक्षा ➔") : getTxt("Enter Study & Combat Quiz ➔", "अध्ययन और प्रश्नोत्तरी प्रारंभ ➔")}
+                </button>
               </div>
+
+              {/* LEVEL LOCKED STATE FROSTED OVERLAY */}
+              {isLocked && (
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backdropFilter: 'blur(12px)',
+                  WebkitBackdropFilter: 'blur(12px)',
+                  background: 'rgba(6, 11, 40, 0.65)',
+                  borderRadius: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  transform: 'translateZ(20px)',
+                  padding: '20px',
+                  textAlign: 'center',
+                  border: '1.5px solid rgba(239, 68, 68, 0.3)'
+                }}>
+                  {/* Embossed gold padlock icon */}
+                  <div style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle, #f59e0b 0%, #b45309 100%)',
+                    border: '2px solid #fef08a',
+                    boxShadow: '0 0 20px rgba(245, 158, 11, 0.5), inset 0 2px 4px rgba(255,255,255,0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.6rem',
+                    marginBottom: '12px',
+                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))'
+                  }}>
+                    🔒
+                  </div>
+                  
+                  {/* Glowing lock status ticker */}
+                  <span style={{
+                    fontSize: '0.7rem',
+                    color: '#ef4444',
+                    fontWeight: '900',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.08em',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    padding: '3px 10px',
+                    borderRadius: '6px',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    boxShadow: '0 0 10px rgba(239, 68, 68, 0.15)',
+                    animation: 'pulse 1.5s infinite'
+                  }}>
+                    {getTxt("LEVEL LOCKED — SECURITY BYPASS CHECK", "स्तर लॉक — सुरक्षा जांच")}
+                  </span>
+                  
+                  <p style={{ fontSize: '0.72rem', color: 'rgba(255, 255, 255, 0.65)', margin: '8px 0 0 0', maxWidth: '240px' }}>
+                    {getTxt("Complete the previous level chapters first.", "पहले पिछले स्तर के अध्यायों को पूरा करें।")}
+                  </p>
+                </div>
+              )}
 
             </div>
           );
@@ -1415,25 +1473,28 @@ function NexusSovereignSimulator({ lang, getTxt, setCurrentRoute }) {
 
       </div>
 
-      {/* EDGE TELEMETRY DIAGNOSTICS HUD */}
+      {/* MICRO-LATENCY DIAGNOSTICS HUD COCKPIT DECK */}
       <div style={{
-        backgroundColor: '#040b15',
-        border: '1.5px solid #1a2840',
-        borderRadius: '6px',
-        padding: '10px 14px',
+        background: 'rgba(6, 11, 40, 0.7)',
+        border: '1.5px solid rgba(168, 85, 247, 0.4)',
+        borderRadius: '12px',
+        padding: '12px 18px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        fontSize: '0.62rem',
-        color: '#8FA0B5',
-        fontFamily: 'monospace'
+        fontSize: '0.68rem',
+        color: '#a78bfa',
+        fontFamily: 'monospace',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.1)',
+        marginTop: '28px',
+        letterSpacing: '0.04em'
       }}>
-        <div>🛰️ MICRO-TELEMETRY DISPATCH: <strong style={{ color: '#22c55e' }}>ONLINE</strong></div>
-        <div style={{ display: 'flex', gap: '14px' }}>
-          <span>Intent Sort: <strong style={{ color: '#fff' }}>{telemetry.latencyMs} ms</strong></span>
-          <span>SQLite Query: <strong style={{ color: '#fff' }}>{telemetry.dbSpeedMs} ms</strong></span>
-          <span>V-DOM Reflow: <strong style={{ color: '#fff' }}>{telemetry.renderMicroSecs} μs</strong></span>
-          <span style={{ color: '#fb923c' }}>Compute Overhead: <strong>{telemetry.totalComputeMs} ms</strong> (&lt; 3.0ms Target)</span>
+        <div>🛰️ COCKPIT MICRO-TELEMETRY: <strong style={{ color: '#06b6d4', textShadow: '0 0 6px #06b6d4' }}>SECURE</strong></div>
+        <div style={{ display: 'flex', gap: '18px', flexWrap: 'wrap' }}>
+          <span>[UI Latency: <strong style={{ color: '#fff' }}>{latencyMs}ms</strong>]</span>
+          <span>[Memory Load: <strong style={{ color: '#fff' }}>14.8MB</strong>]</span>
+          <span>[3D Thread Status: <strong style={{ color: '#06b6d4' }}>SECURE</strong>]</span>
+          <span>[Offline Sync: <strong style={{ color: '#22c55e' }}>ONLINE</strong>]</span>
         </div>
       </div>
 

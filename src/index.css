@@ -678,3 +678,59 @@ h1, h2, h3, h4, h5, h6 {
     display: none !important;
   }
 }
+
+/* ===== HOLOGRAPHIC SPACE-NAVY 3D SYSTEM ===== */
+.holographic-glass {
+  background: rgba(6, 11, 40, 0.45) !important;
+  backdrop-filter: blur(20px) saturate(210%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(210%) !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+  box-shadow: 
+    0 30px 60px rgba(0, 0, 0, 0.5), 
+    inset 0 1px 2px rgba(255, 255, 255, 0.15), 
+    inset 0 -12px 36px rgba(168, 85, 247, 0.08) !important;
+  border-radius: 20px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  will-change: transform, box-shadow;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.holographic-glass:hover {
+  border-color: rgba(6, 182, 212, 0.5) !important;
+  box-shadow: 
+    0 0 40px rgba(6, 182, 212, 0.35), 
+    inset 0 1px 4px rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Perspective distortion classes */
+.perspective-container {
+  perspective: 1200px !important;
+  transform-style: preserve-3d !important;
+}
+
+.perspective-card {
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  transform-style: preserve-3d !important;
+  will-change: transform;
+}
+
+.perspective-card:hover {
+  transform: translateZ(20px) rotateX(4deg) rotateY(-4deg) !important;
+}
+
+/* Neon Breathing Keyframe Animation */
+.glow-breathe {
+  animation: glowBreatheAnimation 4s ease-in-out infinite alternate !important;
+}
+
+@keyframes glowBreatheAnimation {
+  0% {
+    border-color: rgba(168, 85, 247, 0.35) !important;
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.15) !important;
+  }
+  100% {
+    border-color: rgba(6, 182, 212, 0.5) !important;
+    box-shadow: 0 0 35px rgba(6, 182, 212, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+  }
+}

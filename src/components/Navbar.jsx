@@ -100,7 +100,7 @@ export default function Navbar({ currentRoute, setCurrentRoute, lang, setLang, t
               <button
                 key={item.id}
                 onClick={() => setCurrentRoute(item.id)}
-                className={`btn-3d ${isActive ? 'btn-3d-primary' : ''}`}
+                className={`btn-3d ${isActive ? 'nav-tab-active' : ''}`}
                 aria-current={isActive ? 'page' : undefined}
                 style={{
                   padding: '6px 12px',
