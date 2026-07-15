@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, useMotionValue, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 /**
  * LandingScreen — Premium Aurora Gradient Landing Page
@@ -21,6 +21,19 @@ export default function LandingScreen({ onDone, lang = 'en', setLang }) {
   const springConfig = { damping: 30, stiffness: 80, mass: 0.8 };
   const springX = useSpring(mouseX, springConfig);
   const springY = useSpring(mouseY, springConfig);
+
+  // Map motion values for smooth parallax transformations
+  const blob1X = useTransform(springX, (x) => (isMobile ? 0 : x * 0.08));
+  const blob1Y = useTransform(springY, (y) => (isMobile ? 0 : y * 0.08));
+
+  const blob2X = useTransform(springX, (x) => (isMobile ? 0 : x * -0.06));
+  const blob2Y = useTransform(springY, (y) => (isMobile ? 0 : y * -0.06));
+
+  const blob3X = useTransform(springX, (x) => (isMobile ? 0 : x * 0.05));
+  const blob3Y = useTransform(springY, (y) => (isMobile ? 0 : y * 0.05));
+
+  const blob4X = useTransform(springX, (x) => (isMobile ? 0 : x * -0.04));
+  const blob4Y = useTransform(springY, (y) => (isMobile ? 0 : y * -0.04));
 
   // Check mobile device size and optimize performance
   useEffect(() => {
@@ -148,8 +161,8 @@ export default function LandingScreen({ onDone, lang = 'en', setLang }) {
             top: '20%',
             filter: isMobile ? 'blur(40px)' : 'blur(80px)',
             mixBlendMode: 'screen',
-            x: isMobile ? 0 : springX.get() * 0.08,
-            y: isMobile ? 0 : springY.get() * 0.08,
+            x: isMobile ? 0 : blob1X,
+            y: isMobile ? 0 : blob1Y,
             willChange: 'transform'
           }}
         />
@@ -175,8 +188,8 @@ export default function LandingScreen({ onDone, lang = 'en', setLang }) {
             top: '15%',
             filter: isMobile ? 'blur(45px)' : 'blur(90px)',
             mixBlendMode: 'screen',
-            x: isMobile ? 0 : springX.get() * -0.06,
-            y: isMobile ? 0 : springY.get() * -0.06,
+            x: isMobile ? 0 : blob2X,
+            y: isMobile ? 0 : blob2Y,
             willChange: 'transform'
           }}
         />
@@ -202,8 +215,8 @@ export default function LandingScreen({ onDone, lang = 'en', setLang }) {
             bottom: '10%',
             filter: isMobile ? 'blur(40px)' : 'blur(80px)',
             mixBlendMode: 'screen',
-            x: isMobile ? 0 : springX.get() * 0.05,
-            y: isMobile ? 0 : springY.get() * 0.05,
+            x: isMobile ? 0 : blob3X,
+            y: isMobile ? 0 : blob3Y,
             willChange: 'transform'
           }}
         />
@@ -232,8 +245,8 @@ export default function LandingScreen({ onDone, lang = 'en', setLang }) {
                 bottom: '15%',
                 filter: 'blur(75px)',
                 mixBlendMode: 'screen',
-                x: springX.get() * -0.04,
-                y: springY.get() * -0.04,
+                x: blob4X,
+                y: blob4Y,
                 willChange: 'transform'
               }}
             />

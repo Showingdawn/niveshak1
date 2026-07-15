@@ -400,20 +400,19 @@ export default function App() {
       {splashDone && !onboardingDone && (
         <OnboardingFlow lang={lang} onComplete={handleOnboardingComplete} />
       )}
-      {/* Disclaimer sticky banner */}
+      {/* Main App Layout (Visible only after Splash and Onboarding are completed) */}
       {splashDone && onboardingDone && (
-        <DisclaimerBanner lang={lang} />
-      )}
-      <Navbar 
-        currentRoute={currentRoute} 
-        setCurrentRoute={setCurrentRoute} 
-        lang={lang} 
-        setLang={setLang}
-        theme={theme}
-        setTheme={setTheme}
-      />
-
-      <main style={{ flexGrow: 1, padding: currentRoute === 'abhyas' ? '0' : '40px 0' }} className={currentRoute === 'abhyas' ? "" : "container"}>
+        <>
+          <DisclaimerBanner lang={lang} />
+          <Navbar 
+            currentRoute={currentRoute} 
+            setCurrentRoute={setCurrentRoute} 
+            lang={lang} 
+            setLang={setLang}
+            theme={theme}
+            setTheme={setTheme}
+          />
+          <main style={{ flexGrow: 1, padding: currentRoute === 'abhyas' ? '0' : '40px 0' }} className={currentRoute === 'abhyas' ? "" : "container"}>
         
         {/* Route 1: Landing/Home */}
         {currentRoute === 'home' && (
@@ -906,6 +905,8 @@ export default function App() {
           </div>
         </div>
       </footer>
+        </>
+      )}
     </div>
   );
 }
