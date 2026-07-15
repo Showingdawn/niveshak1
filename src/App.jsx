@@ -9,7 +9,7 @@ import InteractiveCalculator from './components/InteractiveCalculator';
 import SeekhoRenderer from './components/SeekhoRenderer';
 import OnboardingFlow from './components/OnboardingFlow';
 import DisclaimerBanner from './components/DisclaimerBanner';
-import SplashScreen from './components/SplashScreen';
+import LandingScreen from './components/LandingScreen';
 import Dashboard from './components/Dashboard';
 import Leaderboard from './components/Leaderboard';
 import { tracks, glossary, trackQuizzes } from './data/lessons';
@@ -48,10 +48,8 @@ export default function App() {
   const [lang, setLang] = useState('en');
   const [scamMeterInitialText, setScamMeterInitialText] = useState('');
 
-  // Splash screen: show once per device session
-  const [splashDone, setSplashDone] = useState(() => {
-    return localStorage.getItem('safalniveshak_splash_seen') === 'true';
-  });
+  // Splash screen: show on every app startup for premium landing experience
+  const [splashDone, setSplashDone] = useState(false);
 
   // Onboarding: show once per device
   const [onboardingDone, setOnboardingDone] = useState(() => {
@@ -394,9 +392,9 @@ export default function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
-      {/* Splash Screen — first visit only */}
+      {/* Premium Animated Landing/Splash Screen */}
       {!splashDone && (
-        <SplashScreen lang={lang} onDone={() => setSplashDone(true)} />
+        <LandingScreen lang={lang} setLang={setLang} onDone={() => setSplashDone(true)} />
       )}
       {/* Onboarding wizard */}
       {splashDone && !onboardingDone && (
