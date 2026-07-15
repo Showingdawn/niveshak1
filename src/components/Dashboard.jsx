@@ -1,4 +1,111 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+
+// --- Reusable CountUp Component (Part A, Feature 6) ---
+function CountUp({ end, duration = 1200, suffix = '', prefix = '' }) {
+  const [value, setValue] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const cleaned = typeof end === 'string' ? end.replace(/[^0-9.-]/g, '') : end;
+    const endValue = parseFloat(cleaned);
+    
+    if (isNaN(endValue) || endValue === 0) {
+      setValue(end);
+      return;
+    }
+    
+    const startTime = performance.now();
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      const easeProgress = progress * (2 - progress);
+      const currentVal = Math.floor(easeProgress * endValue);
+      setValue(currentVal);
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        setValue(endValue);
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }, [end, duration]);
+
+  const formatVal = () => {
+    if (typeof end === 'string' && end.includes('₹')) {
+      return `₹${value.toLocaleString('en-IN')}`;
+    }
+    return prefix + value.toLocaleString('en-IN') + suffix;
+  };
+
+  return <span className="numeric-data">{formatVal()}</span>;
+}
+
+// --- Reusable 3D TiltCard Component (Part A, Feature 2) ---
+function TiltCard({ children, className = '', style = {}, onClick }) {
+  const cardRef = useRef(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+
+  const springConfig = { damping: 22, stiffness: 100, mass: 0.7 };
+  const rXSpring = useSpring(rotateX, springConfig);
+  const rYSpring = useSpring(rotateY, springConfig);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current || window.matchMedia('(hover: none)').matches) return;
+    
+    const card = cardRef.current;
+    const rect = card.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    const mouseX = e.clientX - rect.left - width / 2;
+    const mouseY = e.clientY - rect.top - height / 2;
+
+    const angleX = -(mouseY / (height / 2)) * 6; // Max 6 deg rotation
+    const angleY = (mouseX / (width / 2)) * 6;
+
+    rotateX.set(angleX);
+    rotateY.set(angleY);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    rotateX.set(0);
+    rotateY.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      onClick={onClick}
+      style={{
+        ...style,
+        rotateX: rXSpring,
+        rotateY: rYSpring,
+        transformStyle: 'preserve-3d',
+        perspective: 1000,
+        scale: isHovered ? 1.015 : 1
+      }}
+      className={`glass-card ${className}`}
+      whileTap={{ scale: 0.98 }}
+      transition={{ scale: { duration: 0.2 } }}
+    >
+      <div style={{ transform: 'translateZ(10px)', width: '100%', height: '100%' }}>
+        {children}
+      </div>
+    </motion.div>
+  );
+}
 import { 
   BookOpen, 
   ShieldAlert, 
@@ -365,10 +472,12 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '20px'
+        gap: '20px',
+        position: 'relative',
+        zIndex: 2
       }}>
         {/* Progress Ring Widget */}
-        <div className="ledger-card" style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px' }}>
+        <TiltCard style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px' }}>
           {/* Progress Circular Ring SVG */}
           <div style={{ position: 'relative', width: '80px', height: '80px', flexShrink: 0 }}>
             <svg style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
@@ -404,44 +513,47 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
               {getTxt('XP Accumulation', 'अनुभव संचय')}
             </span>
             <h4 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'var(--text-primary)', margin: '2px 0 4px' }}>
-              {totalXP} XP
+              <CountUp end={totalXP} /> XP
             </h4>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0 }}>
               {getTxt(`${xpPerLevel - xpInCurrentLevel} XP to Level ${level + 1}`, `स्तर ${level + 1} के लिए ${xpPerLevel - xpInCurrentLevel} XP चाहिए`)}
             </p>
           </div>
-        </div>
+        </TiltCard>
 
         {/* Portfolio Snapshot Widget */}
-        <div className="ledger-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px' }}>
+        <TiltCard style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px' }}>
           <div>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               {getTxt('Virtual Net Worth (Abhyas)', 'आभासी कुल मूल्य (अभ्यास)')}
             </span>
             <h4 style={{ fontSize: '1.6rem', fontWeight: '900', color: 'var(--text-primary)', margin: '4px 0 2px' }}>
-              ₹{portfolioValue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+              <CountUp end={portfolioValue} prefix="₹" />
             </h4>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem' }}>
             {portfolioReturn >= 0 ? (
               <span style={{ color: 'var(--color-green)', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                ▲ +{portfolioReturn.toFixed(2)}%
+                ▲ +<CountUp end={portfolioReturn.toFixed(2)} />%
               </span>
             ) : (
               <span style={{ color: 'var(--color-red)', fontWeight: '700', display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
-                ▼ {portfolioReturn.toFixed(2)}%
+                ▼ <CountUp end={portfolioReturn.toFixed(2)} />%
               </span>
             )}
             <span style={{ color: 'var(--text-tertiary)' }}>{getTxt('all-time simulated returns', 'सभी समय का डमी रिटर्न')}</span>
           </div>
-        </div>
+        </TiltCard>
 
         {/* Continue Learning Card */}
-        <div className="ledger-card" style={{ 
-          display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px',
-          background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%)',
-          border: '1px solid rgba(124, 58, 237, 0.3)'
-        }}>
+        <TiltCard 
+          className="glass-card-shimmer"
+          style={{ 
+            display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '20px',
+            background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(37, 99, 235, 0.08) 100%)',
+            borderColor: 'rgba(124, 58, 237, 0.3)'
+          }}
+        >
           <div>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               {getTxt('Continue Learning', 'अध्ययन जारी रखें')}
@@ -471,17 +583,18 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
               onClick={() => {
                 setCurrentRoute('seekho');
               }}
+              className="btn-3d btn-3d-primary"
               style={{
-                background: 'none', border: 'none', color: 'var(--color-amber)', 
-                display: 'inline-flex', alignItems: 'center', gap: '4px', 
-                fontSize: '0.8rem', fontWeight: '700', cursor: 'pointer', padding: 0,
-                alignSelf: 'flex-start', marginTop: '10px'
+                alignSelf: 'flex-start',
+                marginTop: '12px',
+                padding: '6px 14px',
+                fontSize: '0.75rem'
               }}
             >
-              {getTxt('Resume Course', 'पाठ पर जाएं')} <ArrowRight size={14} />
+              {getTxt('Resume Course', 'पाठ पर जाएं')} <ArrowRight size={12} style={{ marginLeft: '4px' }} />
             </button>
           )}
-        </div>
+        </TiltCard>
       </div>
 
       {/* QUICK ACCESS ACTION GRID */}
@@ -498,37 +611,27 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
           {quickAccessItems.map(item => {
             const Icon = item.icon;
             return (
-              <button
+              <TiltCard
                 key={item.id}
                 onClick={() => setCurrentRoute(item.id)}
+                className="btn-3d"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '16px',
                   padding: '16px 20px',
-                  borderRadius: '12px',
-                  border: '1px solid var(--border-color)',
-                  backgroundColor: 'var(--bg-surface-light)',
-                  textAlign: 'left',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  outline: 'none'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.borderColor = item.color;
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = 'var(--border-color)';
-                  e.currentTarget.style.backgroundColor = 'var(--bg-surface-light)';
+                  width: '100%',
+                  border: '1px solid var(--border-glass)',
+                  background: 'var(--bg-glass)',
+                  textAlign: 'left'
                 }}
               >
                 <div style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   width: '44px', height: '44px', borderRadius: '10px',
-                  backgroundColor: `${item.color}15`, color: item.color
+                  backgroundColor: `${item.color}20`, color: item.color,
+                  filter: `drop-shadow(0 2px 8px ${item.color}35)`
                 }}>
                   <Icon size={24} />
                 </div>
@@ -536,31 +639,46 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
                   <h4 style={{ fontSize: '0.92rem', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
                     {item.label}
                   </h4>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
+                  <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
                     {item.desc}
                   </p>
                 </div>
-              </button>
+              </TiltCard>
             );
           })}
         </div>
       </div>
 
       {/* DATA MANAGEMENT & BACKUP SETTINGS CARD */}
-      <div className="ledger-card" style={{
+      {/* AMBIENT BACKGROUND ORBS FOR DEPTH */}
+      <div className="ambient-orb" style={{
+        width: '350px',
+        height: '350px',
+        background: 'radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%)',
+        top: '10%',
+        left: '-50px',
+      }} />
+      <div className="ambient-orb" style={{
+        width: '400px',
+        height: '400px',
+        background: 'radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%)',
+        bottom: '20%',
+        right: '-100px',
+      }} />
+
+      {/* DATA MANAGEMENT & BACKUP SETTINGS CARD */}
+      <div className="glass-card" style={{
         marginTop: '28px',
-        backgroundColor: '#0A1628',
-        borderColor: '#1a2840',
-        padding: '20px',
-        borderRadius: '12px',
-        backgroundImage: 'linear-gradient(135deg, rgba(10,22,40,0.6) 0%, rgba(13,27,47,0.8) 100%)',
-        borderWidth: '1px',
-        borderStyle: 'solid'
+        padding: '24px 20px',
+        border: '1px solid var(--border-glass)',
+        background: 'var(--bg-glass)',
+        position: 'relative',
+        zIndex: 2
       }}>
-        <h3 style={{ fontSize: '1.15rem', color: '#D98E04', fontWeight: '900', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <h3 style={{ fontSize: '1.15rem', color: 'var(--color-amber)', fontWeight: '900', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
           ⚙️ {getTxt("Offline Data Management", "ऑफलाइन डेटा प्रबंधन")}
         </h3>
-        <p style={{ fontSize: '0.82rem', color: '#8FA0B5', margin: '0 0 16px 0' }}>
+        <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0 0 16px 0' }}>
           {getTxt(
             "Export or import your user profile, learning progress, simulated portfolios, and settings to a local JSON file.",
             "अपने यूज़र प्रोफ़ाइल, सीखने की प्रगति, सिमुलेटेड पोर्टफोलियो और सेटिंग्स को स्थानीय JSON फ़ाइल में एक्सपोर्ट या इम्पोर्ट करें।"
@@ -571,15 +689,10 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
           <button
             type="button"
             onClick={handleExportData}
+            className="btn-3d btn-3d-primary"
             style={{
-              background: 'linear-gradient(135deg, #7c3aed, #2563eb)',
-              border: 'none',
-              borderRadius: '6px',
-              color: '#fff',
-              padding: '10px 18px',
+              padding: '9px 18px',
               fontSize: '0.85rem',
-              fontWeight: '700',
-              cursor: 'pointer'
             }}
           >
             📥 {getTxt("Export My Data", "डेटा एक्सपोर्ट करें")}
@@ -588,15 +701,12 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
           <div style={{ position: 'relative', overflow: 'hidden', display: 'inline-block' }}>
             <button
               type="button"
+              className="btn-3d"
               style={{
-                backgroundColor: 'transparent',
-                border: '1.5px solid #2a3f5f',
-                borderRadius: '6px',
-                color: '#8FA0B5',
                 padding: '9px 18px',
                 fontSize: '0.85rem',
-                fontWeight: '700',
-                cursor: 'pointer'
+                border: '1px solid var(--border-glass)',
+                color: 'var(--text-secondary)',
               }}
             >
               📤 {getTxt("Import Data", "डेटा इम्पोर्ट करें")}
@@ -620,15 +730,13 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
           <button
             type="button"
             onClick={handleToggleNotifications}
+            className="btn-3d"
             style={{
-              backgroundColor: notifyEnabled ? 'rgba(34,197,94,0.1)' : 'transparent',
-              border: `1.5px solid ${notifyEnabled ? '#22c55e' : '#2a3f5f'}`,
-              borderRadius: '6px',
-              color: notifyEnabled ? '#22c55e' : '#8FA0B5',
+              borderColor: notifyEnabled ? '#22c55e' : 'var(--btn-border)',
+              backgroundColor: notifyEnabled ? 'rgba(34,197,94,0.1)' : 'var(--btn-bg)',
+              color: notifyEnabled ? '#22c55e' : 'var(--text-secondary)',
               padding: '9px 18px',
               fontSize: '0.85rem',
-              fontWeight: '700',
-              cursor: 'pointer'
             }}
           >
             🔔 {notifyEnabled ? getTxt("Daily Alerts: ON", "डेली अलर्ट: चालू") : getTxt("Enable Daily Alerts", "डेली अलर्ट चालू करें")}
@@ -636,46 +744,43 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
         </div>
 
         {/* Profile Switcher Section */}
-        <div style={{ borderTop: '1px solid #1a2840', paddingTop: '16px', marginTop: '16px' }}>
-          <h4 style={{ fontSize: '0.92rem', color: '#D98E04', fontWeight: '800', margin: '0 0 10px 0' }}>
+        <div style={{ borderTop: '1px solid var(--border-glass)', paddingTop: '16px', marginTop: '16px' }}>
+          <h4 style={{ fontSize: '0.92rem', color: 'var(--color-amber)', fontWeight: '800', margin: '0 0 10px 0' }}>
             👤 {getTxt("User Profile Switcher", "यूज़र प्रोफ़ाइल स्विच करें")}
           </h4>
           
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '14px' }}>
-            {profiles.map(p => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => handleSwitchProfile(p.id)}
-                style={{
-                  backgroundColor: p.id === activeProfileId || (activeProfileId === 'default_profile' && p.id === 'active_user') ? 'rgba(217,142,4,0.2)' : 'rgba(255,255,255,0.03)',
-                  border: `1.5px solid ${p.id === activeProfileId || (activeProfileId === 'default_profile' && p.id === 'active_user') ? '#D98E04' : '#2a3f5f'}`,
-                  color: p.id === activeProfileId || (activeProfileId === 'default_profile' && p.id === 'active_user') ? '#D98E04' : '#8FA0B5',
-                  borderRadius: '6px',
-                  padding: '6px 14px',
-                  fontSize: '0.8rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  outline: 'none'
-                }}
-              >
-                {p.name} ({p.xp} XP)
-              </button>
-            ))}
+            {profiles.map(p => {
+              const isActive = p.id === activeProfileId || (activeProfileId === 'default_profile' && p.id === 'active_user');
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => handleSwitchProfile(p.id)}
+                  className="btn-3d"
+                  style={{
+                    backgroundColor: isActive ? 'rgba(217,142,4,0.15)' : 'var(--btn-bg)',
+                    borderColor: isActive ? 'var(--color-amber)' : 'var(--border-glass)',
+                    color: isActive ? 'var(--color-amber)' : 'var(--text-secondary)',
+                    padding: '6px 14px',
+                    fontSize: '0.8rem',
+                  }}
+                >
+                  {p.name} ({p.xp} XP)
+                </button>
+              );
+            })}
             
             <button
               type="button"
               onClick={() => setShowCreateProfile(!showCreateProfile)}
+              className="btn-3d"
               style={{
                 backgroundColor: 'rgba(34,197,94,0.1)',
-                border: '1.5px dashed #22c55e',
+                borderColor: '#22c55e',
                 color: '#22c55e',
-                borderRadius: '6px',
                 padding: '6px 14px',
                 fontSize: '0.8rem',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                outline: 'none'
               }}
             >
               ➕ {getTxt("New Profile", "नया प्रोफाइल")}
@@ -691,10 +796,10 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
                 onChange={e => setNewProfileName(e.target.value)}
                 style={{
                   flex: 1,
-                  backgroundColor: '#070E1A',
-                  border: '1px solid #2a3f5f',
-                  borderRadius: '6px',
-                  color: '#E8E4DA',
+                  backgroundColor: 'rgba(0,0,0,0.2)',
+                  border: '1px solid var(--border-glass)',
+                  borderRadius: '8px',
+                  color: 'var(--text-primary)',
                   padding: '8px 12px',
                   fontSize: '0.82rem',
                   outline: 'none'
@@ -702,15 +807,10 @@ export default function Dashboard({ lang, completedLessons = [], completedTracks
               />
               <button
                 type="submit"
+                className="btn-3d btn-3d-primary"
                 style={{
-                  backgroundColor: '#22c55e',
-                  border: 'none',
-                  borderRadius: '6px',
-                  color: '#000',
                   padding: '8px 16px',
                   fontSize: '0.82rem',
-                  fontWeight: 'bold',
-                  cursor: 'pointer'
                 }}
               >
                 {getTxt("Create", "बनाएं")}

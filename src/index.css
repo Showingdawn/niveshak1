@@ -21,6 +21,16 @@
   
   --font-display: 'Inter', sans-serif;
   --font-body: 'Noto Sans Devanagari', 'Inter', sans-serif;
+
+  /* 3D Glass variables (Light theme defaults) */
+  --bg-glass: rgba(255, 255, 255, 0.7);
+  --border-glass: rgba(0, 0, 0, 0.06);
+  --highlight-glass: rgba(255, 255, 255, 0.6);
+  --shadow-ambient: 0 16px 40px rgba(0, 0, 0, 0.02);
+  --shadow-contact: 0 4px 10px rgba(0, 0, 0, 0.05);
+  --btn-border: rgba(0, 0, 0, 0.08);
+  --btn-bg: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(240,240,240,0.85) 100%);
+  --btn-highlight: rgba(255, 255, 255, 0.8);
 }
 
 .dark-theme {
@@ -41,6 +51,16 @@
   --color-gold: #D4AF37;
   
   --grid-color: rgba(255, 255, 255, 0.015);
+
+  /* 3D Glass variables (Dark theme overrides) */
+  --bg-glass: rgba(13, 30, 54, 0.45);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --highlight-glass: rgba(255, 255, 255, 0.05);
+  --shadow-ambient: 0 16px 40px rgba(124, 58, 237, 0.03);
+  --shadow-contact: 0 4px 10px rgba(0, 0, 0, 0.35);
+  --btn-border: rgba(255, 255, 255, 0.08);
+  --btn-bg: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+  --btn-highlight: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -479,4 +499,126 @@ h1, h2, h3, h4, h5, h6 {
   .abhyas-layout {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ==========================================
+   🏆 UNIVERSAL 3D GLASSMORPHISM SYSTEM
+   ========================================== */
+
+/* 3D Glassmorphism Reusable Card */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border-glass);
+  box-shadow: 
+    inset 0 1px 0 0 var(--highlight-glass),
+    var(--shadow-ambient),
+    var(--shadow-contact);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  will-change: transform, box-shadow;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tactile 3D Universal Buttons */
+.btn-3d {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: var(--font-display);
+  cursor: pointer;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--text-primary);
+  box-shadow: 
+    inset 0 1.5px 0 0 var(--btn-highlight),
+    0 4px 6px rgba(0, 0, 0, 0.15);
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+  text-decoration: none;
+}
+
+.btn-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    inset 0 1.5px 0 0 var(--btn-highlight),
+    0 6px 12px rgba(124, 58, 237, 0.15),
+    0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-3d:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 
+    inset 0 1px 0 0 var(--btn-highlight),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Primary Raised 3D Button */
+.btn-3d-primary {
+  background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%) !important;
+  border: 1px solid #7c3aed !important;
+  color: #ffffff !important;
+  box-shadow: 
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.25),
+    0 4px 6px rgba(124, 58, 237, 0.25),
+    0 4px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-3d-primary:hover {
+  background: linear-gradient(180deg, #9065f7 0%, #7635de 100%) !important;
+  box-shadow: 
+    inset 0 1.5px 0 0 rgba(255, 255, 255, 0.35),
+    0 8px 16px rgba(124, 58, 237, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.btn-3d-primary:active {
+  background: linear-gradient(180deg, #7c3aed 0%, #5b21b6 100%) !important;
+  box-shadow: 
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15),
+    0 2px 4px rgba(124, 58, 237, 0.2) !important;
+}
+
+/* Animated Gradient Borders (Shimmer Highlight) */
+.glass-card-shimmer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px; /* border width */
+  background: linear-gradient(90deg, transparent, rgba(167, 139, 250, 0.4), transparent);
+  background-size: 200% auto;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: shimmerRotate 3s linear infinite;
+}
+
+@keyframes shimmerRotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+/* Ambient Background Orbs */
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+  will-change: transform, opacity;
 }
