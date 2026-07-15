@@ -1199,12 +1199,9 @@ export default function AbhyasUltimate({ lang, theme }) {
       </div>
 
       {/* 1. TOP METRICS PORTAL CARD */}
-      <div className="ledger-card" style={{
-        backgroundColor: '#0A1628',
-        borderColor: '#1a2840',
-        padding: '20px',
-        borderRadius: '8px',
-        backgroundImage: 'linear-gradient(135deg, rgba(10,22,40,0.6) 0%, rgba(13,27,47,0.8) 100%)'
+      <div className="holographic-glass glow-breathe" style={{
+        padding: '24px 20px',
+        margin: '10px 0'
       }}>
         <div style={{
           display: 'grid',
@@ -1212,68 +1209,106 @@ export default function AbhyasUltimate({ lang, theme }) {
           gap: '20px',
           alignItems: 'center'
         }}>
-          <div>
-            <span style={{ fontSize: '0.68rem', color: '#8FA0B5', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.05)',
+            borderRadius: '12px',
+            padding: '14px',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)'
+          }}>
+            <span style={{ fontSize: '0.68rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '800' }}>
               💰 {getTxt("VIRTUAL WALLET BALANCE", "वर्चुअल कैश बैलेंस")}
             </span>
-            <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#22c55e', marginTop: '4px', fontFamily: 'monospace' }}>
+            <div style={{ fontSize: '1.45rem', fontWeight: '900', color: '#22c55e', marginTop: '6px', fontFamily: 'monospace', textShadow: '0 0 8px rgba(34,197,94,0.3)' }}>
               ₹{portfolio.balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </div>
-            <span style={{ fontSize: '0.68rem', color: '#8FA0B5' }}>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', display: 'block', marginTop: '2px' }}>
               {getTxt("Consolidated margin allocation", "संयुक्त कुल वर्चुअल पूंजी")}
             </span>
           </div>
 
-          <div>
-            <span style={{ fontSize: '0.68rem', color: '#8FA0B5', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.05)',
+            borderRadius: '12px',
+            padding: '14px',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)'
+          }}>
+            <span style={{ fontSize: '0.68rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '800' }}>
               📊 {getTxt("TOTAL INVESTED CAPITAL", "कुल निवेशित राशि")}
             </span>
-            <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#E8E4DA', marginTop: '4px', fontFamily: 'monospace' }}>
+            <div style={{ fontSize: '1.45rem', fontWeight: '900', color: '#fff', marginTop: '6px', fontFamily: 'monospace' }}>
               ₹{portfolio.total_invested.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </div>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', display: 'block', marginTop: '2px' }}>
+              {getTxt("Base initial margin", "प्रारंभिक आधार राशि")}
+            </span>
           </div>
 
-          <div>
-            <span style={{ fontSize: '0.68rem', color: '#8FA0B5', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.05)',
+            borderRadius: '12px',
+            padding: '14px',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)'
+          }}>
+            <span style={{ fontSize: '0.68rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '800' }}>
               📈 {getTxt("CURRENT MARGIN PORTFOLIO", "पोर्टफोलियो का वर्तमान मूल्य")}
             </span>
-            <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#D98E04', marginTop: '4px', fontFamily: 'monospace' }}>
+            <div style={{ fontSize: '1.45rem', fontWeight: '900', color: '#fb923c', marginTop: '6px', fontFamily: 'monospace', textShadow: '0 0 8px rgba(251,146,60,0.3)' }}>
               ₹{portfolio.total_current_value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </div>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', display: 'block', marginTop: '2px' }}>
+              {getTxt("Live value of holdings", "होल्डिंग्स का लाइव मूल्य")}
+            </span>
           </div>
 
-          <div>
-            <span style={{ fontSize: '0.68rem', color: '#8FA0B5', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.05)',
+            borderRadius: '12px',
+            padding: '14px',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)'
+          }}>
+            <span style={{ fontSize: '0.68rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '800' }}>
               🛡️ {getTxt("FLOATING RETURN P&L", "अवास्तविक लाभ/हानि")}
             </span>
             <div style={{
-              fontSize: '1.5rem',
+              fontSize: '1.45rem',
               fontWeight: '900',
               color: portfolio.total_absolute_return >= 0 ? '#22c55e' : '#ef4444',
-              marginTop: '4px',
-              fontFamily: 'monospace'
+              marginTop: '6px',
+              fontFamily: 'monospace',
+              textShadow: portfolio.total_absolute_return >= 0 ? '0 0 8px rgba(34,197,94,0.3)' : '0 0 8px rgba(239,68,68,0.3)'
             }}>
               {portfolio.total_absolute_return >= 0 ? '+' : ''}₹{portfolio.total_absolute_return.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              <span style={{ fontSize: '0.82rem', marginLeft: '6px', fontWeight: 'bold' }}>
+              <span style={{ fontSize: '0.82rem', marginLeft: '6px', fontWeight: '900' }}>
                 ({portfolio.total_absolute_return_pct >= 0 ? '+' : ''}{portfolio.total_absolute_return_pct}%)
               </span>
             </div>
           </div>
 
-          <div>
-            <span style={{ fontSize: '0.68rem', color: '#8FA0B5', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <div style={{
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.05)',
+            borderRadius: '12px',
+            padding: '14px',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)'
+          }}>
+            <span style={{ fontSize: '0.68rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: '800' }}>
               🏆 {getTxt("CONSOLIDATED XIRR", "कुल संचित XIRR")}
             </span>
             <div style={{
-              fontSize: '1.5rem',
+              fontSize: '1.45rem',
               fontWeight: '900',
               color: portfolio.portfolio_xirr >= 0 ? '#22c55e' : '#ef4444',
-              marginTop: '4px',
-              fontFamily: 'monospace'
+              marginTop: '6px',
+              fontFamily: 'monospace',
+              textShadow: portfolio.portfolio_xirr >= 0 ? '0 0 8px rgba(34,197,94,0.3)' : '0 0 8px rgba(239,68,68,0.3)'
             }}>
               {portfolio.portfolio_xirr >= 0 ? '+' : ''}{portfolio.portfolio_xirr}%
             </div>
-            <span style={{ fontSize: '0.65rem', color: '#8FA0B5' }}>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', display: 'block', marginTop: '2px' }}>
               {getTxt("Newton-Raphson calculated", "न्यूटन-रैप्सन द्वारा विश्लेषित")}
             </span>
           </div>

@@ -459,41 +459,49 @@ export default function Abhyas({ lang, theme, onNavigateToSeekho }) {
       {/* SUB-NAVIGATION TABS */}
       <div style={{
         display: 'flex',
-        backgroundColor: '#0A1628',
-        borderBottom: '1px solid #1a2840',
-        padding: '0 16px',
-        gap: '12px',
+        background: 'rgba(6, 11, 40, 0.6)',
+        border: '1px solid rgba(168, 85, 247, 0.3)',
+        borderRadius: '30px',
+        padding: '4px',
+        margin: '16px auto 10px auto',
+        width: 'fit-content',
+        gap: '6px',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         flexShrink: 0
       }}>
         <button
           onClick={() => setSubTab('ultimate')}
           style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderBottom: subTab === 'ultimate' ? '3px solid #D98E04' : '3px solid transparent',
-            color: subTab === 'ultimate' ? '#D98E04' : '#8FA0B5',
-            padding: '12px 18px',
-            fontSize: '0.85rem',
-            fontWeight: '700',
+            background: subTab === 'ultimate' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(6, 182, 212, 0.25) 100%)' : 'transparent',
+            border: subTab === 'ultimate' ? '1.5px solid #06b6d4' : '1.5px solid transparent',
+            borderRadius: '20px',
+            color: subTab === 'ultimate' ? '#fff' : 'rgba(255, 255, 255, 0.65)',
+            padding: '8px 18px',
+            fontSize: '0.82rem',
+            fontWeight: '900',
             cursor: 'pointer',
-            letterSpacing: '0.03em',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            textShadow: subTab === 'ultimate' ? '0 0 6px #06b6d4' : 'none',
+            boxShadow: subTab === 'ultimate' ? '0 0 15px rgba(6, 182, 212, 0.35)' : 'none',
             outline: 'none'
           }}
         >
-          🚀 {getTxt('Abhyas Ultimate', 'अभ्यास अल्टीमेट (ऑल-इन-वन)')}
+          🚀 {getTxt('Abhyas Ultimate', 'अभ्यास अल्टीमेट')}
         </button>
         <button
           onClick={() => setSubTab('stocks')}
           style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderBottom: subTab === 'stocks' ? '3px solid #D98E04' : '3px solid transparent',
-            color: subTab === 'stocks' ? '#D98E04' : '#8FA0B5',
-            padding: '12px 18px',
-            fontSize: '0.85rem',
-            fontWeight: '700',
+            background: subTab === 'stocks' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(6, 182, 212, 0.25) 100%)' : 'transparent',
+            border: subTab === 'stocks' ? '1.5px solid #06b6d4' : '1.5px solid transparent',
+            borderRadius: '20px',
+            color: subTab === 'stocks' ? '#fff' : 'rgba(255, 255, 255, 0.65)',
+            padding: '8px 18px',
+            fontSize: '0.82rem',
+            fontWeight: '900',
             cursor: 'pointer',
-            letterSpacing: '0.03em',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            textShadow: subTab === 'stocks' ? '0 0 6px #06b6d4' : 'none',
+            boxShadow: subTab === 'stocks' ? '0 0 15px rgba(6, 182, 212, 0.35)' : 'none',
             outline: 'none'
           }}
         >
@@ -502,15 +510,17 @@ export default function Abhyas({ lang, theme, onNavigateToSeekho }) {
         <button
           onClick={() => setSubTab('mf')}
           style={{
-            backgroundColor: 'transparent',
-            border: 'none',
-            borderBottom: subTab === 'mf' ? '3px solid #D98E04' : '3px solid transparent',
-            color: subTab === 'mf' ? '#D98E04' : '#8FA0B5',
-            padding: '12px 18px',
-            fontSize: '0.85rem',
-            fontWeight: '700',
+            background: subTab === 'mf' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(6, 182, 212, 0.25) 100%)' : 'transparent',
+            border: subTab === 'mf' ? '1.5px solid #06b6d4' : '1.5px solid transparent',
+            borderRadius: '20px',
+            color: subTab === 'mf' ? '#fff' : 'rgba(255, 255, 255, 0.65)',
+            padding: '8px 18px',
+            fontSize: '0.82rem',
+            fontWeight: '900',
             cursor: 'pointer',
-            letterSpacing: '0.03em',
+            transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+            textShadow: subTab === 'mf' ? '0 0 6px #06b6d4' : 'none',
+            boxShadow: subTab === 'mf' ? '0 0 15px rgba(6, 182, 212, 0.35)' : 'none',
             outline: 'none'
           }}
         >
