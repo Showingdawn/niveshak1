@@ -7,21 +7,38 @@ import AbhyasUltimate from './AbhyasUltimate';
 // TRADINGVIEW ADVANCED CHART WIDGET
 // ==========================================
 function TradingViewChart({ symbol, theme }) {
-  const containerId = useRef(`tv_${Math.random().toString(36).substr(2, 9)}`);
-  const widgetRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    const id = containerId.current;
-    const container = document.getElementById(id);
-    
+    if (!containerRef.current) return;
+
+    const tvSymbol = (() => {
+      if (!symbol) return 'NSE:RELIANCE';
+      let s = String(symbol).toUpperCase().trim();
+      if (s.includes(':')) return s;
+      if (s.endsWith('.NS')) return `NSE:${s.replace('.NS', '')}`;
+      if (s.endsWith('.BS')) return `BSE:${s.replace('.BS', '')}`;
+      if (s === 'NIFTY' || s === 'NIFTY50' || s === 'NIFTY_50') return 'NSE:NIFTY';
+      if (s === 'SENSEX') return 'BSE:SENSEX';
+      return `NSE:${s}`;
+    })();
+
+    const container = containerRef.current;
+    container.innerHTML = "";
+
+    const widgetDiv = document.createElement("div");
+    widgetDiv.id = `tv_${Math.random().toString(36).substring(2, 9)}`;
+    widgetDiv.style.width = "100%";
+    widgetDiv.style.height = "100%";
+    widgetDiv.style.minHeight = "360px";
+    container.appendChild(widgetDiv);
+
     const init = () => {
-      if (!window.TradingView) return;
+      if (!window.TradingView || !document.getElementById(widgetDiv.id)) return;
       try {
-        if (container) container.innerHTML = "";
-        
-        widgetRef.current = new window.TradingView.widget({
+        new window.TradingView.widget({
           autosize: true,
-          symbol: symbol,
+          symbol: tvSymbol,
           interval: 'D',
           timezone: 'Asia/Kolkata',
           theme: 'dark',
@@ -31,12 +48,11 @@ function TradingViewChart({ symbol, theme }) {
           enable_publishing: false,
           hide_top_toolbar: false,
           hide_side_toolbar: false,
-          allow_symbol_change: false,
+          allow_symbol_change: true,
           hide_legend: false,
-          save_image: false,
-          container_id: id,
+          save_image: true,
+          container_id: widgetDiv.id,
           hide_volume: false,
-          no_referral_id: true,
           studies: [],
           overrides: {
             'paneProperties.background': '#0A1628',
@@ -51,18 +67,22 @@ function TradingViewChart({ symbol, theme }) {
       script = document.createElement('script');
       script.src = 'https://s3.tradingview.com/tv.js';
       script.async = true;
-      script.onload = () => setTimeout(init, 200);
+      script.onload = () => setTimeout(init, 150);
       document.head.appendChild(script);
     } else if (window.TradingView) {
       setTimeout(init, 100);
     } else {
-      script.addEventListener('load', () => setTimeout(init, 200));
+      script.addEventListener('load', () => setTimeout(init, 150));
     }
+
+    return () => {
+      if (container) container.innerHTML = "";
+    };
   }, [symbol]);
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <div id={containerId.current} style={{ width: '100%', height: '100%' }} />
+    <div style={{ width: '100%', height: '100%', minHeight: '360px', borderRadius: '6px', overflow: 'hidden' }}>
+      <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: '360px' }} />
     </div>
   );
 }

@@ -2,30 +2,36 @@ import React, { useState, useEffect, useRef } from 'react';
 
 // TradingView Pro Technical Chart Component
 function TradingViewWidget({ symbol }) {
-  const containerId = useRef(`tv_chart_${Math.random().toString(36).substring(2, 9)}`);
-  const widgetRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    const id = containerId.current;
-    const container = document.getElementById(id);
-    if (!container) return;
+    if (!containerRef.current) return;
 
     const tvSymbol = (() => {
-      if (!symbol) return 'BSE:RELIANCE';
+      if (!symbol) return 'NSE:RELIANCE';
       let s = String(symbol).toUpperCase().trim();
       if (s.includes(':')) return s;
       if (s.endsWith('.NS')) return `NSE:${s.replace('.NS', '')}`;
       if (s.endsWith('.BS')) return `BSE:${s.replace('.BS', '')}`;
       if (s === 'NIFTY' || s === 'NIFTY50' || s === 'NIFTY_50') return 'NSE:NIFTY';
       if (s === 'SENSEX') return 'BSE:SENSEX';
-      return `BSE:${s}`;
+      return `NSE:${s}`;
     })();
 
-    const initWidget = () => {
-      if (!window.TradingView) return;
+    const container = containerRef.current;
+    container.innerHTML = "";
+
+    const widgetDiv = document.createElement("div");
+    widgetDiv.id = `tv_${Math.random().toString(36).substring(2, 9)}`;
+    widgetDiv.style.width = "100%";
+    widgetDiv.style.height = "100%";
+    widgetDiv.style.minHeight = "360px";
+    container.appendChild(widgetDiv);
+
+    const init = () => {
+      if (!window.TradingView || !document.getElementById(widgetDiv.id)) return;
       try {
-        container.innerHTML = "";
-        widgetRef.current = new window.TradingView.widget({
+        new window.TradingView.widget({
           autosize: true,
           symbol: tvSymbol,
           interval: 'D',
@@ -40,7 +46,7 @@ function TradingViewWidget({ symbol }) {
           allow_symbol_change: true,
           hide_legend: false,
           save_image: true,
-          container_id: id,
+          container_id: widgetDiv.id,
           hide_volume: false,
           studies: [
             "MASimple@tv-basicstudies",
@@ -62,18 +68,22 @@ function TradingViewWidget({ symbol }) {
       script = document.createElement('script');
       script.src = 'https://s3.tradingview.com/tv.js';
       script.async = true;
-      script.onload = () => setTimeout(initWidget, 150);
+      script.onload = () => setTimeout(init, 150);
       document.head.appendChild(script);
     } else if (window.TradingView) {
-      setTimeout(initWidget, 100);
+      setTimeout(init, 100);
     } else {
-      script.addEventListener('load', () => setTimeout(initWidget, 150));
+      script.addEventListener('load', () => setTimeout(init, 150));
     }
+
+    return () => {
+      if (container) container.innerHTML = "";
+    };
   }, [symbol]);
 
   return (
-    <div style={{ width: '100%', height: '100%', borderRadius: '6px', overflow: 'hidden' }}>
-      <div id={containerId.current} style={{ width: '100%', height: '100%' }} />
+    <div style={{ width: '100%', height: '100%', minHeight: '360px', borderRadius: '6px', overflow: 'hidden' }}>
+      <div ref={containerRef} style={{ width: '100%', height: '100%', minHeight: '360px' }} />
     </div>
   );
 }
@@ -1914,8 +1924,22 @@ export default function AbhyasUltimate({ lang, theme }) {
                     <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#E8E4DA', fontFamily: 'monospace' }}>
                       ₹{selectedAsset.current_price.toFixed(2)}
                     </div>
-                    <span style={{ fontSize: '0.68rem', color: '#8FA0B5' }}>
-                      {getTxt("Auto-Fluctuating Live Quote", "वर्चुअल ऑटो-प्राइस अपडेट")}
+                    <span style={{
+                      fontSize: '0.68rem',
+                      color: selectedAsset?.is_live ? '#22c55e' : '#60a5fa',
+                      fontWeight: '800',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      background: selectedAsset?.is_live ? 'rgba(34, 197, 94, 0.1)' : 'rgba(96, 165, 250, 0.1)',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      border: `1px solid ${selectedAsset?.is_live ? 'rgba(34, 197, 94, 0.3)' : 'rgba(96, 165, 250, 0.3)'}`
+                    }}>
+                      {selectedAsset?.is_live 
+                        ? getTxt("🟢 Live NSE Market (Yahoo Finance)", "🟢 लाइव एनएसई मार्केट (याहू फाइनेंस)")
+                        : getTxt("🔵 Simulated Data (Offline Mode)", "🔵 सिम्युलेटेड डेटा (ऑफलाइन मोड)")
+                      }
                     </span>
                   </div>
                 </div>

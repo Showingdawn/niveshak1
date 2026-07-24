@@ -1765,42 +1765,106 @@ function executeSystematicMandates(userId, callback) {
   });
 }
 
+// Yahoo Finance In-Memory Cache (TTL 45 seconds to avoid rate limiting)
+const yahooQuoteCache = new Map();
+const CACHE_TTL_MS = 45000;
+
+function getYahooTicker(symbol) {
+  if (!symbol) return 'RELIANCE.NS';
+  const sym = String(symbol).toUpperCase().trim();
+  if (sym.includes('.NS') || sym.includes('.BO') || sym.startsWith('^')) return sym;
+  if (sym === 'NIFTY' || sym === 'NIFTY50') return '^NSEI';
+  if (sym === 'SENSEX') return '^BSESN';
+  return `${sym}.NS`;
+}
+
+async function fetchYahooLivePrice(symbol) {
+  const ticker = getYahooTicker(symbol);
+  const now = Date.now();
+
+  if (yahooQuoteCache.has(ticker)) {
+    const cached = yahooQuoteCache.get(ticker);
+    if (now - cached.timestamp < CACHE_TTL_MS) {
+      return cached.data;
+    }
+  }
+
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1m&range=1d`;
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+
+    if (response.ok) {
+      const json = await response.json();
+      const meta = json?.chart?.result?.[0]?.meta;
+      if (meta && typeof meta.regularMarketPrice === 'number' && meta.regularMarketPrice > 0) {
+        const liveData = {
+          price: parseFloat(meta.regularMarketPrice.toFixed(2)),
+          previousClose: parseFloat((meta.chartPreviousClose || meta.previousClose || meta.regularMarketPrice).toFixed(2)),
+          high: parseFloat((meta.regularMarketDayHigh || meta.regularMarketPrice).toFixed(2)),
+          low: parseFloat((meta.regularMarketDayLow || meta.regularMarketPrice).toFixed(2)),
+          isLive: true,
+          ticker: ticker,
+          updatedAt: now
+        };
+        yahooQuoteCache.set(ticker, { timestamp: now, data: liveData });
+        return liveData;
+      }
+    }
+  } catch (err) {
+    // Network offline or Yahoo request failed
+  }
+
+  return null; // Fallback to simulated data
+}
+
 // 1. Fetch live quotes, history, and FVG status
 app.get('/api/market/quotes', (req, res) => {
   catchUpMarketPrices(() => {
-    db.all("SELECT * FROM assets_master", [], (err, assets) => {
+    db.all("SELECT * FROM assets_master", [], async (err, assets) => {
       if (err) return res.status(500).json({ error: "Failed to load quotes" });
       
-      let processed = 0;
-      const results = [];
-      
-      assets.forEach(asset => {
-        // Fetch last 30 candlesticks
-        db.all("SELECT open, high, low, close, volume, timestamp FROM price_candlesticks WHERE asset_id = ? ORDER BY timestamp DESC LIMIT 30", [asset.id], (err, candles) => {
-          if (err) return res.status(500).json({ error: "Failed to load history" });
+      try {
+        const results = await Promise.all(assets.map(async (asset) => {
+          const liveQuote = await fetchYahooLivePrice(asset.symbol);
           
-          const sortedCandles = [...candles].reverse();
-          const fvg = identifyFVG(sortedCandles.slice(-3));
-          
-          results.push({
-            id: asset.id,
-            symbol: asset.symbol,
-            name: asset.name,
-            asset_type: asset.asset_type,
-            sector: asset.sector,
-            base_price: asset.base_price,
-            current_price: asset.current_price,
-            daily_volatility: asset.daily_volatility,
-            fvg: fvg,
-            history: sortedCandles
+          return new Promise((resolve) => {
+            db.all("SELECT open, high, low, close, volume, timestamp FROM price_candlesticks WHERE asset_id = ? ORDER BY timestamp DESC LIMIT 30", [asset.id], (err, candles) => {
+              const sortedCandles = candles ? [...candles].reverse() : [];
+              const fvg = identifyFVG(sortedCandles.slice(-3));
+              
+              const currentPrice = liveQuote ? liveQuote.price : asset.current_price;
+              
+              // If live quote available, update current_price in SQLite for consistency
+              if (liveQuote) {
+                db.run("UPDATE assets_master SET current_price = ? WHERE id = ?", [liveQuote.price, asset.id]);
+              }
+
+              resolve({
+                id: asset.id,
+                symbol: asset.symbol,
+                name: asset.name,
+                asset_type: asset.asset_type,
+                sector: asset.sector,
+                base_price: asset.base_price,
+                current_price: currentPrice,
+                daily_volatility: asset.daily_volatility,
+                is_live: !!liveQuote,
+                data_source: liveQuote ? "🟢 Live NSE Market (Yahoo Finance)" : "🔵 Simulated (Offline Fallback)",
+                fvg: fvg,
+                history: sortedCandles
+              });
+            });
           });
-          
-          processed++;
-          if (processed === assets.length) {
-            res.json(results);
-          }
-        });
-      });
+        }));
+
+        res.json(results);
+      } catch (e) {
+        res.status(500).json({ error: "Failed to process quotes" });
+      }
     });
   });
 });
