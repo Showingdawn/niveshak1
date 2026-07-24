@@ -1,5 +1,83 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// TradingView Pro Technical Chart Component
+function TradingViewWidget({ symbol }) {
+  const containerId = useRef(`tv_chart_${Math.random().toString(36).substring(2, 9)}`);
+  const widgetRef = useRef(null);
+
+  useEffect(() => {
+    const id = containerId.current;
+    const container = document.getElementById(id);
+    if (!container) return;
+
+    const tvSymbol = (() => {
+      if (!symbol) return 'BSE:RELIANCE';
+      let s = String(symbol).toUpperCase().trim();
+      if (s.includes(':')) return s;
+      if (s.endsWith('.NS')) return `NSE:${s.replace('.NS', '')}`;
+      if (s.endsWith('.BS')) return `BSE:${s.replace('.BS', '')}`;
+      if (s === 'NIFTY' || s === 'NIFTY50' || s === 'NIFTY_50') return 'NSE:NIFTY';
+      if (s === 'SENSEX') return 'BSE:SENSEX';
+      return `BSE:${s}`;
+    })();
+
+    const initWidget = () => {
+      if (!window.TradingView) return;
+      try {
+        container.innerHTML = "";
+        widgetRef.current = new window.TradingView.widget({
+          autosize: true,
+          symbol: tvSymbol,
+          interval: 'D',
+          timezone: 'Asia/Kolkata',
+          theme: 'dark',
+          style: '1',
+          locale: 'en',
+          toolbar_bg: '#070E1A',
+          enable_publishing: false,
+          hide_top_toolbar: false,
+          hide_side_toolbar: false,
+          allow_symbol_change: true,
+          hide_legend: false,
+          save_image: true,
+          container_id: id,
+          hide_volume: false,
+          studies: [
+            "MASimple@tv-basicstudies",
+            "RSI@tv-basicstudies"
+          ],
+          overrides: {
+            "paneProperties.background": "#070E1A",
+            "paneProperties.backgroundType": "solid",
+            "scalesProperties.textColor": "#8FA0B5"
+          }
+        });
+      } catch (err) {
+        console.warn("TradingView widget init error:", err);
+      }
+    };
+
+    let script = document.querySelector('script[src="https://s3.tradingview.com/tv.js"]');
+    if (!script) {
+      script = document.createElement('script');
+      script.src = 'https://s3.tradingview.com/tv.js';
+      script.async = true;
+      script.onload = () => setTimeout(initWidget, 150);
+      document.head.appendChild(script);
+    } else if (window.TradingView) {
+      setTimeout(initWidget, 100);
+    } else {
+      script.addEventListener('load', () => setTimeout(initWidget, 150));
+    }
+  }, [symbol]);
+
+  return (
+    <div style={{ width: '100%', height: '100%', borderRadius: '6px', overflow: 'hidden' }}>
+      <div id={containerId.current} style={{ width: '100%', height: '100%' }} />
+    </div>
+  );
+}
+
 // Candlestick Pattern Recognition Helper Function
 function detectCandlestickPatterns(candles) {
   if (!candles || candles.length < 2) return [];
@@ -417,6 +495,10 @@ export default function AbhyasUltimate({ lang, theme }) {
   const [searchQ, setSearchQ] = useState('');
   const [filterType, setFilterType] = useState('ALL'); // 'ALL' | 'STOCK' | 'ETF' | 'MUTUAL_FUND'
   const [activeTab, setActiveTab] = useState('positions'); // 'positions' | 'mandates' | 'ledger'
+  const [backtestActive, setBacktestActive] = useState(false);
+  const [chartType, setChartType] = useState('TRADINGVIEW'); // 'TRADINGVIEW' | 'SVG_MICRO'
+  const [backtestStrategy, setBacktestStrategy] = useState('SMA_CROSSOVER'); // 'BUY_HOLD' | 'SMA_CROSSOVER'
+  const [backtestResults, setBacktestResults] = useState(null);
   
   // Order entry states
   const [tradeType, setTradeType] = useState('BUY_LONG'); // 'BUY_LONG' | 'SELL_LONG' | 'SHORT_SELL' | 'COVER_SHORT'
@@ -487,6 +569,81 @@ export default function AbhyasUltimate({ lang, theme }) {
         speakNarrator(`Congratulations! You unlocked the badge: ${badgeId.replaceAll('_', ' ')}`);
       }
     } catch (err) {}
+  };
+
+  // Strategy Backtesting Engine
+  const handleRunBacktest = () => {
+    if (!selectedAsset || !selectedAsset.history || selectedAsset.history.length === 0) {
+      showToast('error', getTxt('No candle data available for backtesting.', 'बैकटेस्टिंग के लिए कैंडल डेटा उपलब्ध नहीं है।'));
+      return;
+    }
+
+    const history = selectedAsset.history;
+    const initialVal = 100000;
+    let cash = initialVal;
+    let holdingQty = 0;
+    const trades = [];
+    const equityCurve = [initialVal];
+
+    if (backtestStrategy === 'BUY_HOLD') {
+      const buyPrice = history[0].close;
+      holdingQty = Math.floor(cash / buyPrice);
+      cash -= holdingQty * buyPrice;
+      trades.push({ type: 'BUY', price: buyPrice, qty: holdingQty, date: 'Candle 1' });
+
+      for (let i = 0; i < history.length; i++) {
+        const currentVal = cash + (holdingQty * history[i].close);
+        equityCurve.push(currentVal);
+      }
+    } else {
+      // 5/15 SMA Crossover Strategy
+      const getSMA = (data, period, endIdx) => {
+        if (endIdx < period - 1) return null;
+        let sum = 0;
+        for (let i = endIdx - period + 1; i <= endIdx; i++) {
+          sum += data[i].close;
+        }
+        return sum / period;
+      };
+
+      for (let i = 0; i < history.length; i++) {
+        const sma5 = getSMA(history, 5, i);
+        const sma15 = getSMA(history, 15, i);
+        const prevSma5 = getSMA(history, 5, i - 1);
+        const prevSma15 = getSMA(history, 15, i - 1);
+
+        if (sma5 && sma15 && prevSma5 && prevSma15) {
+          if (prevSma5 <= prevSma15 && sma5 > sma15 && holdingQty === 0) {
+            const price = history[i].close;
+            holdingQty = Math.floor(cash / price);
+            if (holdingQty > 0) {
+              cash -= holdingQty * price;
+              trades.push({ type: 'BUY', price: price, qty: holdingQty, date: `Candle ${i + 1}` });
+            }
+          } else if (prevSma5 >= prevSma15 && sma5 < sma15 && holdingQty > 0) {
+            const price = history[i].close;
+            cash += holdingQty * price;
+            trades.push({ type: 'SELL', price: price, qty: holdingQty, date: `Candle ${i + 1}` });
+            holdingQty = 0;
+          }
+        }
+        const currentVal = cash + (holdingQty * history[i].close);
+        equityCurve.push(currentVal);
+      }
+    }
+
+    const finalVal = cash + (holdingQty * history[history.length - 1].close);
+    const returnPct = ((finalVal - initialVal) / initialVal) * 100;
+
+    setBacktestResults({
+      initialVal,
+      finalVal,
+      returnPct,
+      trades,
+      equityCurve
+    });
+
+    showToast('success', getTxt('Backtest simulation completed!', 'बैकटेस्ट सिमुलेशन पूरा हुआ!'));
   };
 
   // Psychological cognitive tracking algorithm
@@ -1301,12 +1458,16 @@ export default function AbhyasUltimate({ lang, theme }) {
             <div style={{
               fontSize: '1.45rem',
               fontWeight: '900',
-              color: portfolio.portfolio_xirr >= 0 ? '#22c55e' : '#ef4444',
+              color: Number(portfolio.portfolio_xirr) >= 0 ? '#22c55e' : '#ef4444',
               marginTop: '6px',
               fontFamily: 'monospace',
-              textShadow: portfolio.portfolio_xirr >= 0 ? '0 0 8px rgba(34,197,94,0.3)' : '0 0 8px rgba(239,68,68,0.3)'
+              textShadow: Number(portfolio.portfolio_xirr) >= 0 ? '0 0 8px rgba(34,197,94,0.3)' : '0 0 8px rgba(239,68,68,0.3)'
             }}>
-              {portfolio.portfolio_xirr >= 0 ? '+' : ''}{portfolio.portfolio_xirr}%
+              {(() => {
+                const val = Number(portfolio.portfolio_xirr);
+                if (isNaN(val) || !isFinite(val) || Math.abs(val) > 9999) return "+0.00%";
+                return (val >= 0 ? '+' : '') + val.toFixed(2) + '%';
+              })()}
             </div>
             <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', display: 'block', marginTop: '2px' }}>
               {getTxt("Newton-Raphson calculated", "न्यूटन-रैप्सन द्वारा विश्लेषित")}
@@ -1826,9 +1987,54 @@ export default function AbhyasUltimate({ lang, theme }) {
                 </div>
               </div>
 
+              {/* Chart Mode Switcher Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontSize: '0.72rem', color: '#8FA0B5', fontWeight: 'bold', textTransform: 'uppercase' }}>
+                  📊 {getTxt("Interactive Technical Chart Workspace", "इंटरएक्टिव टेक्निकल चार्ट वर्कस्पेस")}
+                </span>
+                <div style={{ display: 'flex', gap: '4px', background: '#070E1A', padding: '3px', borderRadius: '6px', border: '1px solid #1a2840' }}>
+                  <button
+                    type="button"
+                    onClick={() => setChartType('TRADINGVIEW')}
+                    style={{
+                      background: chartType === 'TRADINGVIEW' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(6, 182, 212, 0.3) 100%)' : 'transparent',
+                      border: chartType === 'TRADINGVIEW' ? '1px solid #06b6d4' : '1px solid transparent',
+                      borderRadius: '4px',
+                      color: chartType === 'TRADINGVIEW' ? '#fff' : '#8FA0B5',
+                      padding: '4px 10px',
+                      fontSize: '0.72rem',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    📈 TradingView Pro Chart
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setChartType('SVG_MICRO')}
+                    style={{
+                      background: chartType === 'SVG_MICRO' ? 'rgba(168, 85, 247, 0.25)' : 'transparent',
+                      border: chartType === 'SVG_MICRO' ? '1px solid #a855f7' : '1px solid transparent',
+                      borderRadius: '4px',
+                      color: chartType === 'SVG_MICRO' ? '#fff' : '#8FA0B5',
+                      padding: '4px 10px',
+                      fontSize: '0.72rem',
+                      fontWeight: '800',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ⚡ FVG Micro SVG
+                  </button>
+                </div>
+              </div>
+
               {/* Chart frame */}
-              <div style={{ height: '240px', backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '6px', padding: '10px', position: 'relative', marginBottom: '20px' }}>
-                {renderInteractiveChart(selectedAsset.history, selectedAsset.fvg)}
+              <div style={{ height: '380px', backgroundColor: '#070E1A', border: '1px solid #1a2840', borderRadius: '6px', padding: '6px', position: 'relative', marginBottom: '20px' }}>
+                {chartType === 'TRADINGVIEW' ? (
+                  <TradingViewWidget symbol={selectedAsset?.symbol} />
+                ) : (
+                  renderInteractiveChart(selectedAsset.history, selectedAsset.fvg)
+                )}
               </div>
 
               {/* LEVEL 2 DEPTH MONITOR */}

@@ -1017,27 +1017,46 @@ function getSimulatedNAV(fund, timestamp) {
 
 // XIRR Calculation Newton-Raphson Solver
 function calculateXIRR(cashflows) {
-  if (cashflows.length < 2) return 0;
+  if (!cashflows || cashflows.length < 2) return 0;
 
   // Sort cashflows by date
-  const sorted = [...cashflows].sort((a, b) => a.date - b.date);
+  const sorted = [...cashflows].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   // We need at least one positive and one negative cashflow
   let hasPositive = false;
   let hasNegative = false;
+  let totalInflow = 0;
+  let totalOutflow = 0;
+
   sorted.forEach(cf => {
-    if (cf.amount > 0) hasPositive = true;
-    if (cf.amount < 0) hasNegative = true;
+    if (cf.amount > 0) {
+      hasPositive = true;
+      totalInflow += cf.amount;
+    }
+    if (cf.amount < 0) {
+      hasNegative = true;
+      totalOutflow += Math.abs(cf.amount);
+    }
   });
 
   if (!hasPositive || !hasNegative) return 0;
 
-  const t0 = sorted[0].date;
+  const t0 = new Date(sorted[0].date).getTime();
+  const tEnd = new Date(sorted[sorted.length - 1].date).getTime();
+  const totalDays = (tEnd - t0) / (1000 * 60 * 60 * 24);
+
+  // If time period is under 1 day (e.g. trades executed today),
+  // annualization mathematically explodes. Return simple percentage ROI instead.
+  if (totalDays < 1.0) {
+    if (totalOutflow === 0) return 0;
+    const simpleRoi = ((totalInflow - totalOutflow) / totalOutflow) * 100;
+    return isNaN(simpleRoi) || !isFinite(simpleRoi) ? 0 : parseFloat(simpleRoi.toFixed(2));
+  }
 
   const f = (r) => {
     let sum = 0;
     for (let i = 0; i < sorted.length; i++) {
-      const days = (sorted[i].date - t0) / (1000 * 60 * 60 * 24);
+      const days = (new Date(sorted[i].date).getTime() - t0) / (1000 * 60 * 60 * 24);
       sum += sorted[i].amount / Math.pow(1 + r, days / 365);
     }
     return sum;
@@ -1046,7 +1065,7 @@ function calculateXIRR(cashflows) {
   const df = (r) => {
     let sum = 0;
     for (let i = 0; i < sorted.length; i++) {
-      const days = (sorted[i].date - t0) / (1000 * 60 * 60 * 24);
+      const days = (new Date(sorted[i].date).getTime() - t0) / (1000 * 60 * 60 * 24);
       sum -= (days / 365) * sorted[i].amount / Math.pow(1 + r, (days / 365) + 1);
     }
     return sum;
@@ -1063,11 +1082,20 @@ function calculateXIRR(cashflows) {
     if (Math.abs(dy) < 1e-12) break;
     const rNext = r - y / dy;
     if (Math.abs(rNext - r) < tolerance) {
-      return rNext * 100; // Return percentage
+      const pct = rNext * 100;
+      if (!isFinite(pct) || isNaN(pct) || Math.abs(pct) > 999) {
+        return totalOutflow > 0 ? parseFloat((((totalInflow - totalOutflow) / totalOutflow) * 100).toFixed(2)) : 0;
+      }
+      return parseFloat(pct.toFixed(2));
     }
     r = rNext;
   }
-  return r * 100; // Fallback
+  
+  const finalPct = r * 100;
+  if (!isFinite(finalPct) || isNaN(finalPct) || Math.abs(finalPct) > 999) {
+    return totalOutflow > 0 ? parseFloat((((totalInflow - totalOutflow) / totalOutflow) * 100).toFixed(2)) : 0;
+  }
+  return parseFloat(finalPct.toFixed(2));
 }
 
 // SIP Mandates background processor
